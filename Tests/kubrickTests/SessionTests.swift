@@ -11,7 +11,7 @@ class SessionTests: XCTestCase {
         XCTAssertNil(camera.output)
         
         session.addInput(camera)
-                
+        
     }
     
 }

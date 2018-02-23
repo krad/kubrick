@@ -59,7 +59,7 @@ extension MediaSource {
 #if os(iOS)
     extension SystemMediaSource: MediaSource {
         public func sources() -> [Source] {
-            let types: [AVCaptureDevice.DeviceType] = [.builtInDualCamera,
+            let types: [AVCaptureDevice.DeviceType] = [.builtInDuoCamera,
                                                        .builtInMicrophone,
                                                        .builtInTelephotoCamera,
                                                        .builtInTrueDepthCamera,
