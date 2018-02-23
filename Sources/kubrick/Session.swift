@@ -18,6 +18,8 @@ public protocol BaseSession {
 
 public class CaptureSession: Session {
     private var session = Base()
+    
+    public init() {}
  
     public func startRunning() {
         self.session.startRunning()
