@@ -11,8 +11,30 @@ class MockSink: Sink {
     
 }
 
+class MockDeviceInput: MediaDeviceInput {
+    static func makeInput(device: Source) throws -> MediaDeviceInput {
+        return MockDeviceInput()
+    }
+}
+
+class MockDeviceOutput: MediaDeviceOutput { }
+
+var makeInputMock: MakeMediaDeviceInput = { src, onCreate in
+    let input = MockDeviceInput()
+    onCreate(input)
+    return input
+}
+
+var makeOutputMock: MakeMediaDeviceOutput = { src, onCreate in
+    let output = MockDeviceOutput()
+    onCreate(output)
+    return output
+}
+
 #if os(macOS) || os(iOS)
     import AVFoundation
+
+    
     class MockCameraSource: AVCaptureDevice {
         override var uniqueID: String { return UUID().uuidString }
         override var isConnected: Bool { return true }
