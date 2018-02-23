@@ -59,12 +59,14 @@ extension MediaSource {
 #if os(iOS)
     extension SystemMediaSource: MediaSource {
         public func sources() -> [Source] {
-            let types: [AVCaptureDevice.DeviceType] = [.builtInDuoCamera,
-                                                       .builtInMicrophone,
+            var types: [AVCaptureDevice.DeviceType] = [.builtInMicrophone,
                                                        .builtInTelephotoCamera,
-                                                       .builtInTrueDepthCamera,
                                                        .builtInWideAngleCamera]
             
+            //.builtInDualCamera,
+            //.builtInDuoCamera,
+            //.builtInTrueDepthCamera,
+
             let discovery = AVCaptureDevice.DiscoverySession(deviceTypes: types,
                                                             mediaType: nil,
                                                             position: .unspecified)
