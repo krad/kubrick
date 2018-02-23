@@ -21,13 +21,8 @@ public struct AVDeviceDiscoverer: SourceDiscoverer {
         self.mediaSource = mediaSource
     }
     
-    public var sources: [Source] {
-        return mediaSource.sources()
-    }
-    
-    public var devices: [MediaDevice] {
-        return mediaSource.devices()
-    }
+    public var sources: [Source] { return mediaSource.sources() }
+    public var devices: [MediaDevice] { return mediaSource.devices() }
     
 }
 
@@ -39,12 +34,9 @@ extension MediaSource {
     public func devices() -> [MediaDevice] {
         return self.sources().flatMap {
             switch $0.type {
-            case .video?:
-                return Camera($0)
-            case .audio?:
-                return Microphone($0)
-            case .none:
-                return nil
+            case .video?: return Camera($0)
+            case .audio?: return Microphone($0)
+            case .none:   return nil
             }
         }
     }

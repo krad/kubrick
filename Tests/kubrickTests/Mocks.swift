@@ -19,7 +19,7 @@ class MockSink: Sink {
         override var position: Position { return .unspecified }
         override var modelID: String { return "Fake Cam v2" }
         override var localizedName: String { return "Fake Front Camera" }
-        var manufacturer: String { return "The Test Harness Company" }
+        override var manufacturer: String { return "The Test Harness Company" }
         
         override func hasMediaType(_ mediaType: AVMediaType) -> Bool {
             if mediaType == .video { return true }

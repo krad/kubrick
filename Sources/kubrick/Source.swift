@@ -21,14 +21,8 @@ public protocol Source {
 import AVFoundation
     extension AVCaptureDevice: Source {
         public var type: MediaType? {
-            if self.hasMediaType(AVMediaType.audio) {
-                return .audio
-            }
-            
-            if self.hasMediaType(.video) {
-                return .video
-            }
-            
+            if self.hasMediaType(.audio) { return .audio }
+            if self.hasMediaType(.video) { return .video }
             return nil
         }
     }
