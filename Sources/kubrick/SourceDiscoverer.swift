@@ -32,11 +32,7 @@ public struct AVDeviceDiscoverer: SourceDiscoverer {
 }
 
 public struct SystemMediaSource {
-    
-    public init() {
-        
-    }
-    
+    public init() { }
 }
 
 extension MediaSource {

@@ -4,10 +4,10 @@
 
 public protocol MediaDevice {
     var source: Source { get }
-    var input: MediaDeviceInput? { get }
+    var input: MediaDeviceInput? { get set }
     var output: MediaDeviceOutput? { get set }
-    func createInput(onCreate: (MediaDeviceInput) -> Void)
-    func createOutput(onCreate: (MediaDeviceOutput) -> Void)
+    mutating func createInput(onCreate: (MediaDeviceInput) -> Void)
+    mutating func createOutput(onCreate: (MediaDeviceOutput) -> Void)
 }
 
 public class Camera: MediaDevice {
@@ -36,22 +36,25 @@ public protocol MediaDeviceOutput { }
 #if os(macOS) || os(iOS)
     
     extension MediaDevice {
-        public func createInput(onCreate: (MediaDeviceInput) -> Void) {
+        public mutating func createInput(onCreate: (MediaDeviceInput) -> Void) {
             do {
                 if let src = self.source as? AVCaptureDevice {
                     let input = try AVCaptureDeviceInput(device: src)
+                    self.input = input
                     onCreate(input)
                 }
             } catch { }
         }
         
-        public func createOutput(onCreate: (MediaDeviceOutput) -> Void) {
+        public mutating func createOutput(onCreate: (MediaDeviceOutput) -> Void) {
             switch self.source.type {
             case .video?:
-                let output = AVCaptureVideoDataOutput()
+                let output  = AVCaptureVideoDataOutput()
+                self.output = output
                 onCreate(output)
             case .audio?:
-                let output = AVCaptureAudioDataOutput()
+                let output  = AVCaptureAudioDataOutput()
+                self.output = output
                 onCreate(output)
             case .none:
                 return

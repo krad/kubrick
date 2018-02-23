@@ -30,8 +30,9 @@ public class CaptureSession: Session {
     }
     
     public func addInput(_ input: MediaDevice) {
-        input.createInput { self.base.xaddInput($0) }
-        input.createOutput { self.base.xaddOutput($0) }
+        var inputBuilder = input
+        inputBuilder.createInput { self.base.xaddInput($0) }
+        inputBuilder.createOutput { self.base.xaddOutput($0) }
     }
 }
 
