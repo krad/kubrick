@@ -31,7 +31,13 @@ public struct AVDeviceDiscoverer: SourceDiscoverer {
     
 }
 
-public struct SystemMediaSource { }
+public struct SystemMediaSource {
+    
+    public init() {
+        
+    }
+    
+}
 
 extension MediaSource {
     public func devices() -> [MediaDevice] {
