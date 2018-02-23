@@ -72,7 +72,7 @@ extension MediaSource {
             if #available(iOS 10.2, *) { types.append(.builtInDualCamera) }
             else { types.append(.builtInDuoCamera) }
             
-            if #available(iOS 11.0, *) { types.append(.builtInTrueDepthCamera) }
+            if #available(iOS 11.1, *) { types.append(.builtInTrueDepthCamera) }
 
             let discovery = AVCaptureDevice.DiscoverySession(deviceTypes: types,
                                                             mediaType: nil,
