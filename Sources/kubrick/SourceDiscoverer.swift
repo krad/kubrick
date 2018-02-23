@@ -17,7 +17,7 @@ public struct AVDeviceDiscoverer: SourceDiscoverer {
     
     public private(set) var mediaSource: MediaSource
     
-    init(_ mediaSource: MediaSource = SystemMediaSource()) {
+    public init(_ mediaSource: MediaSource = SystemMediaSource()) {
         self.mediaSource = mediaSource
     }
     
