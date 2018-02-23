@@ -17,7 +17,7 @@ public protocol BaseSession {
 }
 
 public class CaptureSession: Session {
-    private var session = Base()
+    public let session = Base()
     
     public init() {}
  
@@ -30,15 +30,9 @@ public class CaptureSession: Session {
     }
     
     public func addInput(_ input: MediaDevice) {
-        input.createInput {
-            self.session.xaddInput($0)
-        }
-        
-        input.createOutput {
-            self.session.xaddOutput($0)
-        }
+        input.createInput { self.session.xaddInput($0) }
+        input.createOutput { self.session.xaddOutput($0) }
     }
-    
 }
 
 #if os(macOS) || os(iOS)
