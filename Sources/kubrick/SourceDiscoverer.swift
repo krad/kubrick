@@ -69,9 +69,10 @@ extension MediaSource {
                                                        .builtInTelephotoCamera,
                                                        .builtInWideAngleCamera]
             
-            //.builtInDualCamera,
-            //.builtInDuoCamera,
-            //.builtInTrueDepthCamera,
+            if #available(iOS 10.2, *) { types.append(.builtInDualCamera) }
+            else { types.append(.builtInDuoCamera) }
+            
+            if #available(iOS 11.0, *) { types.append(.builtInTrueDepthCamera) }
 
             let discovery = AVCaptureDevice.DiscoverySession(deviceTypes: types,
                                                             mediaType: nil,

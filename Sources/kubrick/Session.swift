@@ -17,21 +17,21 @@ public protocol BaseSession {
 }
 
 public class CaptureSession: Session {
-    public let session = Base()
+    public let base = Base()
     
     public init() {}
  
     public func startRunning() {
-        self.session.startRunning()
+        self.base.startRunning()
     }
     
     public func stopRunning() {
-        self.session.stopRunning()
+        self.base.stopRunning()
     }
     
     public func addInput(_ input: MediaDevice) {
-        input.createInput { self.session.xaddInput($0) }
-        input.createOutput { self.session.xaddOutput($0) }
+        input.createInput { self.base.xaddInput($0) }
+        input.createOutput { self.base.xaddOutput($0) }
     }
 }
 
