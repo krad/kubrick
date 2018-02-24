@@ -91,7 +91,13 @@ class SinkTests: XCTestCase {
         let vSample = video.samples.first
         let aSample = audio.samples.first
         XCTAssertEqual(vSample?.type, .video)
-        XCTAssertEqual(aSample?.type, .audio)        
+        XCTAssertEqual(aSample?.type, .audio)
+        
+        XCTAssertNotNil(vSample?.format)
+        XCTAssertEqual(vSample?.format?.mediaSubType, "2vuy")
+        
+        XCTAssertNotNil(aSample?.format)
+        XCTAssertEqual(aSample?.format?.mediaSubType, "lpcm")
     }
     #endif
 
