@@ -11,15 +11,20 @@ class SinkTests: XCTestCase {
     }
 
     func test_that_we_can_add_a_sink_to_a_device_without_a_session() {
-        let sink    = YUVSink()
+        let video   = VideoSink()
         var camera  = Camera(MockCameraSource(""))
         
         XCTAssertNil(camera.sink)
-        XCTAssertNoThrow(try camera.set(sink: sink))
+        XCTAssertNoThrow(try camera.set(sink: video))
         XCTAssertNotNil(camera.sink)
         
         var mic    = Microphone(MockMicrophoneSource())
-        XCTAssertThrowsError(try mic.set(sink: sink))
+        XCTAssertThrowsError(try mic.set(sink: video))
+        
+        let audio = AudioSink()
+        XCTAssertNil(mic.sink)
+        XCTAssertNoThrow(try mic.set(sink: audio))
+        XCTAssertNotNil(mic.sink)
     }
     
     func test_that_we_can_add_a_sink_to_a_device_that_belongs_to_a_session() {
@@ -30,8 +35,8 @@ class SinkTests: XCTestCase {
         
         session.addInput(camera)
         
-        let sink    = YUVSink()
-        XCTAssertNoThrow(try camera.set(sink: sink))
+        let video = VideoSink()
+        XCTAssertNoThrow(try camera.set(sink: video))
     }
 
     #if os(macOS)
@@ -40,24 +45,40 @@ class SinkTests: XCTestCase {
         
         let discover = AVDeviceDiscoverer()
         let videoSrc = discover.sources.filter { $0.type == .video }.first
+        let audioSrc = discover.sources.filter { $0.type == .audio }.first
         XCTAssertNotNil(videoSrc)
+        XCTAssertNotNil(audioSrc)
         
         var camera = Camera(videoSrc!)
         XCTAssertNil(camera.input)
         XCTAssertNil(camera.output)
+        
+        var mic = Microphone(audioSrc!)
+        XCTAssertNil(mic.input)
+        XCTAssertNil(mic.output)
         
         let session = CaptureSession()
         session.addInput(camera)
         XCTAssertNotNil(camera.input)
         XCTAssertNotNil(camera.output)
         
-        if let _ = camera.input as? MockDeviceInput { XCTFail("We have a fake input") }
-        if let _ = camera.output as? MockDeviceOutput { XCTFail("We have a fake output") }
+        session.addInput(mic)
+        XCTAssertNotNil(mic.input)
+        XCTAssertNotNil(mic.output)
         
-        let sink = YUVSink()
-        XCTAssertEqual(sink.samples.count, 0)
+        if let _ = camera.input as? MockDeviceInput { XCTFail("We have a fake camera input") }
+        if let _ = camera.output as? MockDeviceOutput { XCTFail("We have a fake camera output") }
         
-        XCTAssertNoThrow(try camera.set(sink: sink))
+        if let _ = mic.input as? MockDeviceInput { XCTFail("We have a fake mic input") }
+        if let _ = mic.output as? MockDeviceOutput { XCTFail("We have a fake mic output") }
+        
+        let video = VideoSink()
+        XCTAssertEqual(video.samples.count, 0)
+        XCTAssertNoThrow(try camera.set(sink: video))
+        
+        let audio = AudioSink()
+        XCTAssertEqual(audio.samples.count, 0)
+        XCTAssertNoThrow(try mic.set(sink: audio))
         
         session.startRunning()
         let e = self.expectation(description: "Capturing data")
@@ -66,7 +87,8 @@ class SinkTests: XCTestCase {
         }
         self.wait(for: [e], timeout: 5)
         
-        XCTAssertTrue(sink.samples.count > 0)
+        XCTAssertTrue(video.samples.count > 0)
+        XCTAssertTrue(audio.samples.count > 0)
     }
     #endif
 

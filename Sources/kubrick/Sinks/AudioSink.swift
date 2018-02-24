@@ -1,14 +1,14 @@
 import Dispatch
 
-public class YUVSink: NSObject, Sink {
+public class AudioSink: NSObject, Sink {
     
     public var q: DispatchQueue
-    public let mediaType: MediaType = .video
+    public let mediaType: MediaType = .audio
     public var sink: Sink?
     public var samples: [Sample] = []
     
-    override init() {
-        self.q = DispatchQueue(label: "yuv.reader.q")
+    override public init() {
+        self.q = DispatchQueue(label: "audio.reader.q")
         super.init()
     }
     
@@ -16,7 +16,7 @@ public class YUVSink: NSObject, Sink {
 
 #if os(macOS) || os(iOS)
     import AVFoundation
-    extension YUVSink: AVCaptureVideoDataOutputSampleBufferDelegate {
+    extension AudioSink: AVCaptureAudioDataOutputSampleBufferDelegate {
         public func captureOutput(_ output: AVCaptureOutput,
                                   didOutput sampleBuffer: CMSampleBuffer,
                                   from connection: AVCaptureConnection)
@@ -24,5 +24,4 @@ public class YUVSink: NSObject, Sink {
             self.q.async { self.samples.append(sampleBuffer) }
         }
     }
-    
 #endif

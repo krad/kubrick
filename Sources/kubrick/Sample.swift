@@ -14,7 +14,6 @@ public protocol Sample {
     import CoreMedia
     
     extension CMSampleBuffer: Sample {
-        
         public var bytes: [UInt8] {
             if let b = getBytes(from: self) { return b }
             return []
