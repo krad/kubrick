@@ -98,6 +98,9 @@ class SinkTests: XCTestCase {
         
         XCTAssertNotNil(aSample?.format)
         XCTAssertEqual(aSample?.format?.mediaSubType, "lpcm")
+        
+        XCTAssertNotNil(aSample?.format)
+        XCTAssertNotNil(aSample?.format?.details)
     }
     #endif
 

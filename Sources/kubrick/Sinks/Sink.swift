@@ -8,5 +8,6 @@ public protocol Sink {
     var q: DispatchQueue { get }
     var mediaType: MediaType { get }
     var sink: Sink? { get }
-    var samples: [Sample] { get }
+    func push(sample: Sample)
 }
+

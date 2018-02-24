@@ -1,6 +1,20 @@
 public protocol MediaFormat {
     var mediaType: String { get }
     var mediaSubType: String { get }
+    var details: MediaSpecificFormatDescription? { get }
+}
+
+public protocol MediaSpecificFormatDescription { }
+
+public struct AudioFormatDescription: MediaSpecificFormatDescription {
+    var sampleRate: Float64
+    var formatID: UInt32
+    var formatFlags: UInt32
+    var bytesPerPacket: UInt32
+    var framesPerPacket: UInt32
+    var bytesPerFrame: UInt32
+    var channelsPerFrame: UInt32
+    var bitsPerChannel: UInt32
 }
 
 public enum SampleType: String {
@@ -18,7 +32,21 @@ public enum SampleType: String {
 #if os(macOS) || os(iOS)
     import CoreMedia
     
+    extension AudioFormatDescription {
+        init(_ streamDesc: AudioStreamBasicDescription) {
+            self.sampleRate       = streamDesc.mSampleRate
+            self.formatID         = streamDesc.mFormatID
+            self.formatFlags      = streamDesc.mFormatFlags
+            self.bytesPerPacket   = streamDesc.mBytesPerPacket
+            self.framesPerPacket  = streamDesc.mFramesPerPacket
+            self.bytesPerFrame    = streamDesc.mBytesPerFrame
+            self.channelsPerFrame = streamDesc.mChannelsPerFrame
+            self.bitsPerChannel   = streamDesc.mBitsPerChannel
+        }
+    }
+    
     extension CMFormatDescription: MediaFormat {
+        
         public var mediaType: String {
             return fourCCToString(CMFormatDescriptionGetMediaType(self))
         }
@@ -26,6 +54,14 @@ public enum SampleType: String {
         public var mediaSubType: String {
             return fourCCToString(CMFormatDescriptionGetMediaSubType(self))
         }
+        
+        public var details: MediaSpecificFormatDescription? {
+            if let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(self) {
+                return AudioFormatDescription(asbd.pointee)
+            }
+            return nil
+        }
+
     }
     
     func fourCCToString(_ value: FourCharCode) -> String {

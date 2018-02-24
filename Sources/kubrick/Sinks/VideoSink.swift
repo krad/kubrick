@@ -5,11 +5,15 @@ public class VideoSink: NSObject, Sink {
     public var q: DispatchQueue
     public let mediaType: MediaType = .video
     public var sink: Sink?
-    public var samples: [Sample] = []
+    public var samples = ThreadSafeArray<Sample>()
     
     override public init() {
         self.q = DispatchQueue(label: "video.reader.q")
         super.init()
+    }
+    
+    public func push(sample: Sample) {
+        
     }
     
 }
