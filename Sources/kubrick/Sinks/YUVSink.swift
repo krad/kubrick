@@ -21,7 +21,7 @@ public class YUVSink: NSObject, Sink {
                                   didOutput sampleBuffer: CMSampleBuffer,
                                   from connection: AVCaptureConnection)
         {
-            print(#function)
+            self.q.async { self.samples.append(sampleBuffer) }
         }
     }
     

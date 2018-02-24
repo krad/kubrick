@@ -6,7 +6,7 @@ class SinkTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        //useMockDeviceIO()
+//        useMockDeviceIO()
         self.continueAfterFailure = false
     }
 

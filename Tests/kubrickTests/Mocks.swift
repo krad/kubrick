@@ -14,9 +14,7 @@ class MockDeviceInput: MediaDeviceInput {
 }
 
 class MockDeviceOutput: MediaDeviceOutput {
-    func set(sink: Sink) {
-        
-    }
+    func set(sink: Sink) { }
 }
 
 var makeInputMock: MakeMediaDeviceInput = { src, onCreate in
