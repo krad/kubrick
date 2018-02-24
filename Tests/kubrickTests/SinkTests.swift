@@ -6,7 +6,7 @@ class SinkTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-//        useMockDeviceIO()
+        useMockDeviceIO()
         self.continueAfterFailure = false
     }
 
@@ -82,13 +82,16 @@ class SinkTests: XCTestCase {
         
         session.startRunning()
         let e = self.expectation(description: "Capturing data")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            e.fulfill()
-        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { e.fulfill() }
         self.wait(for: [e], timeout: 5)
         
         XCTAssertTrue(video.samples.count > 0)
         XCTAssertTrue(audio.samples.count > 0)
+        
+        let vSample = video.samples.first
+        let aSample = audio.samples.first
+        XCTAssertEqual(vSample?.type, .video)
+        XCTAssertEqual(aSample?.type, .audio)        
     }
     #endif
 

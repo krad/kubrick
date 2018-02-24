@@ -1,11 +1,31 @@
 @testable import kubrick
-
-let realMakeInput   = kubrick.makeInput
-let realMakeOutput  = kubrick.makeOutput
+#if os(macOS) || os(iOS)
+    import AVFoundation
+#endif
 
 func useRealDeviceIO() {
-    kubrick.makeInput  = realMakeInput
-    kubrick.makeOutput = realMakeOutput
+    #if os(macOS) || os(iOS)
+        kubrick.makeInput = { src, onCreate in
+            let input = try AVCaptureDeviceInput.makeInput(device: src)
+            onCreate(input)
+            return input
+        }
+        
+        kubrick.makeOutput =  { src, onCreate in
+            switch src.type {
+            case .video?:
+                let output = AVCaptureVideoDataOutput()
+                onCreate(output)
+                return output
+            case .audio?:
+                let output = AVCaptureAudioDataOutput()
+                onCreate(output)
+                return output
+            case .none:
+                return nil
+            }
+        }
+    #endif
 }
 
 func useMockDeviceIO() {

@@ -1,13 +1,10 @@
-public enum SampleType {
-    case audio
-    case video
-}
-
 public protocol Sample {
     var bytes: [UInt8] { get }
     var pts: Rational { get }
     var dts: Rational { get }
     var duration: Rational { get }
+    var format: MediaFormat? { get }
+    var type: SampleType { get }
 }
 
 #if os(macOS) || os(iOS)
@@ -32,6 +29,19 @@ public protocol Sample {
         public var duration: Rational {
             let ts = CMSampleBufferGetDuration(self)
             return Rational(numerator: ts.value, denominator: ts.timescale)
+        }
+        
+        public var format: MediaFormat? {
+            return CMSampleBufferGetFormatDescription(self)
+        }
+        
+        public var type: SampleType {
+            if let format = self.format {
+                if let t = SampleType(rawValue: format.mediaType) {
+                    return t
+                }
+            }
+            return .unknown
         }
     }
     
