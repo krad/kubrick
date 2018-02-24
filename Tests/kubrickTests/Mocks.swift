@@ -7,17 +7,17 @@ class MockSource: MediaSource {
     }
 }
 
-class MockSink: Sink {
-    
-}
-
 class MockDeviceInput: MediaDeviceInput {
     static func makeInput(device: Source) throws -> MediaDeviceInput {
         return MockDeviceInput()
     }
 }
 
-class MockDeviceOutput: MediaDeviceOutput { }
+class MockDeviceOutput: MediaDeviceOutput {
+    func set(sink: Sink) {
+        
+    }
+}
 
 var makeInputMock: MakeMediaDeviceInput = { src, onCreate in
     let input = MockDeviceInput()
