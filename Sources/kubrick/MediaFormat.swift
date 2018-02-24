@@ -43,6 +43,18 @@ public enum SampleType: String {
             self.channelsPerFrame = streamDesc.mChannelsPerFrame
             self.bitsPerChannel   = streamDesc.mBitsPerChannel
         }
+        
+        var asbd: AudioStreamBasicDescription {
+            return AudioStreamBasicDescription(mSampleRate: self.sampleRate,
+                                               mFormatID: self.formatID,
+                                               mFormatFlags: self.formatFlags,
+                                               mBytesPerPacket: self.bytesPerPacket,
+                                               mFramesPerPacket: self.framesPerPacket,
+                                               mBytesPerFrame: self.bytesPerFrame,
+                                               mChannelsPerFrame: self.channelsPerFrame,
+                                               mBitsPerChannel: self.bitsPerChannel,
+                                               mReserved: 0)
+        }
     }
     
     extension CMFormatDescription: MediaFormat {

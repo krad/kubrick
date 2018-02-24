@@ -3,6 +3,7 @@ public protocol Sample {
     var pts: Rational { get }
     var dts: Rational { get }
     var duration: Rational { get }
+    var numberOfSamples: Int { get }
     var format: MediaFormat? { get }
     var type: SampleType { get }
 }
@@ -29,6 +30,10 @@ public protocol Sample {
         public var duration: Rational {
             let ts = CMSampleBufferGetDuration(self)
             return Rational(numerator: ts.value, denominator: ts.timescale)
+        }
+        
+        public var numberOfSamples: Int {
+            return CMSampleBufferGetNumSamples(self)
         }
         
         public var format: MediaFormat? {

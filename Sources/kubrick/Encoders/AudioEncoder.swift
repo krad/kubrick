@@ -1,7 +1,11 @@
 public typealias AudioEncodedCallback = ([UInt8]?, Rational?) -> Void
 
+public enum AudioEncoderError: Error {
+    case failedSetup
+}
+
 public protocol AudioEncoder {
     var configured: Bool { get }
-    func setup(using sample: Sample)
-    func encode(_ sample: Sample, onComplete: AudioEncodedCallback)
+    func setup(using sample: Sample) throws
+    func encode(_ sample: Sample, onComplete: @escaping AudioEncodedCallback)
 }

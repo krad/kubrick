@@ -13,12 +13,120 @@ internal class AACEncoder: AudioEncoder {
         self.audioConverter = nil
     }
 
-    func setup(using sample: Sample) {
+    func setup(using sample: Sample) throws {
+        guard var format = sample.format?.details as? AudioFormatDescription else
+        { throw AudioEncoderError.failedSetup }
+        
+        /// The iPhone only records in mono.
+        /// This will choke HLS streams.
+        /// The AVFoundation class of HLS tools ignores header config information in the mp4a atom
+        /// This means that while you can reliably encode mono HLS streams, you can't get them to reliably play.
+        /// The solution is to make the mono stream stereo by copying the pcm bytes before passing them to the AAC encoder
+        /// This is extremely naive, but it works and opens up some interesting possibilities I may explore.
+        if format.channelsPerFrame == 1 {
+            format.bytesPerPacket   = format.bytesPerPacket * 2
+            format.bytesPerFrame    = format.bytesPerFrame  * 2
+            format.channelsPerFrame = 2
+            self.makeBytesStereo    = true
+        }
+        
+        var outASBD                 = AudioStreamBasicDescription()
+        outASBD.mSampleRate         = format.sampleRate
+        outASBD.mFormatID           = kAudioFormatMPEG4AAC
+        outASBD.mFormatFlags        = UInt32(MPEG4ObjectID.AAC_LC.rawValue)
+        outASBD.mBytesPerPacket     = 0
+        outASBD.mFramesPerPacket    = 1024
+        outASBD.mBytesPerFrame      = 0
+        outASBD.mChannelsPerFrame   = format.channelsPerFrame
+        outASBD.mBitsPerChannel     = 0
+        outASBD.mReserved           = 0
+        self.outASBD                = outASBD
+        var inASBD                  = format.asbd
+        
+        #if os(macOS)
+            let status = AudioConverterNew(&inASBD, &outASBD, &audioConverter)
+            if status != noErr { print("Failed to setup converter:", status) }
+            else { self.configured = true }
+        #else
+            if var description = getAudioClassDescription() {
+                
+                let status = AudioConverterNewSpecific(&inASBD,
+                                                       &outASBD,
+                                                       1,
+                                                       &description,
+                                                       &audioConverter)
+                
+                if status != noErr { print("Failed to setup converter:", status) }
+                else { self.configured = true }
+                
+            } else {
+                print("Couldn't get audio converter description")
+            }
+        #endif
         
     }
     
-    func encode(_ sample: Sample, onComplete: ([UInt8]?, Rational?) -> Void) {
+    func encode(_ sample: Sample, onComplete: @escaping AudioEncodedCallback) {
+        self.encoderQ.async {
+            if !self.configured { do { try self.setup(using: sample) } catch { }  }
+            guard let encoder = self.audioConverter,
+                sample.bytes.count > 0 else { return }
+            
+            var pcmBufferSize: UInt32   = 0
+            if self.makeBytesStereo {
+                self.pcmBuffer.append(contentsOf: self.makeStereo(sample))
+            } else {
+                self.pcmBuffer.append(contentsOf: sample.bytes)
+            }
+            
+            self.numberOfSamplesInBuffer += sample.numberOfSamples
+            if self.numberOfSamplesInBuffer < 1024 { return }
+            pcmBufferSize = UInt32(self.pcmBuffer.count)
+
+            self.aacBuffer               = [UInt8](repeating: 0, count: Int(pcmBufferSize))
+            let outBuffer                = AudioBufferList.allocate(maximumBuffers : 1)
+            outBuffer[0].mNumberChannels = self.outASBD!.mChannelsPerFrame
+            outBuffer[0].mDataByteSize   = pcmBufferSize
+            
+            self.aacBuffer.withUnsafeMutableBytes({ rawBufPtr in
+                let ptr = rawBufPtr.baseAddress
+                outBuffer[0].mData = ptr
+            })
+
+            var ioOutputDataPacketSize: UInt32 = 1
+            let status = AudioConverterFillComplexBuffer(encoder,
+                                                         self.fillComplexCallback,
+                                                         Unmanaged.passUnretained(self).toOpaque(),
+                                                         &ioOutputDataPacketSize,
+                                                         outBuffer.unsafeMutablePointer,
+                                                         nil)
+            
+            switch status {
+            case noErr:
+                let aacPayload = Array(self.aacBuffer[0..<Int(outBuffer[0].mDataByteSize)])
+                onComplete(aacPayload, sample.duration)
+            case -1:
+                print("Needed more bytes")
+            default:
+                print("Error converting buffer:", status)
+                onComplete(nil, nil)
+            }
+        }
+    }
+    
+    func makeStereo(_ sample: Sample) -> [UInt8] {
+        var actualSamples: [Int16] = []
+        /// Build an array of 16 bit samples
+        stride(from: 0, to: sample.bytes.count, by: 2).forEach({ idx in
+            if let result = Int16(bytes: [sample.bytes[idx], sample.bytes[idx+1]]) {
+                actualSamples.append(result)
+            }
+        })
         
+        let stereoized = zip(actualSamples, actualSamples).flatMap { [$0, $1] }
+        let results: [UInt8] = stereoized.flatMap { byteArray(from: $0) }
+        
+        return results
     }
     
     
@@ -33,10 +141,7 @@ internal class AACEncoder: AudioEncoder {
     private var pcmBuffer = ThreadSafeArray<UInt8>()
     private var numberOfSamplesInBuffer: Int = 0
     
-    private var inASBD: AudioStreamBasicDescription?
     private var outASBD: AudioStreamBasicDescription?
-    
-    private var previousDuration = kCMTimeZero
     private var makeBytesStereo = false
     
     fileprivate var fillComplexCallback: AudioConverterComplexInputDataProc = { (inAudioConverter,
@@ -47,133 +152,6 @@ internal class AACEncoder: AudioEncoder {
             outDataPacketDescription: outDataPacketDescriptionPtrPtr
         )
     }
-    
-    func setupEncoder(from sampleBuffer: CMSampleBuffer) {
-        
-        if let format = CMSampleBufferGetFormatDescription(sampleBuffer) {
-            if var inASBD = CMAudioFormatDescriptionGetStreamBasicDescription(format)?.pointee {
-                
-                /// The iPhone only records in mono.
-                /// This will choke HLS streams.
-                /// The AVFoundation class of HLS tools ignores header config information in the mp4a atom
-                /// This means that while you can reliably encode mono HLS streams, you can't get them to reliably play.
-                /// The solution is to make the mono stream stereo by copying the pcm bytes before passing them to the AAC encoder
-                /// This is extremely naive, but it works and opens up some interesting possibilities I may explore.
-                if inASBD.mChannelsPerFrame == 1 {
-                    inASBD.mBytesPerPacket   = inASBD.mBytesPerPacket * 2
-                    inASBD.mBytesPerFrame    = inASBD.mBytesPerFrame  * 2
-                    inASBD.mChannelsPerFrame = 2
-                    self.makeBytesStereo     = true
-                }
-                
-                var outASBD                 = AudioStreamBasicDescription()
-                outASBD.mSampleRate         = inASBD.mSampleRate
-                outASBD.mFormatID           = kAudioFormatMPEG4AAC
-                outASBD.mFormatFlags        = UInt32(MPEG4ObjectID.AAC_LC.rawValue)
-                outASBD.mBytesPerPacket     = 0
-                outASBD.mFramesPerPacket    = 1024
-                outASBD.mBytesPerFrame      = 0
-                outASBD.mChannelsPerFrame   = inASBD.mChannelsPerFrame
-                outASBD.mBitsPerChannel     = 0
-                outASBD.mReserved           = 0
-                self.outASBD                = outASBD
-                self.inASBD                 = inASBD
-                
-                #if os(macOS)
-                    let status = AudioConverterNew(&inASBD, &outASBD, &audioConverter)
-                    if status != noErr { print("Failed to setup converter:", status) }
-                #else
-                    if var description = getAudioClassDescription() {
-                        let status = AudioConverterNewSpecific(&inASBD,
-                                                               &outASBD,
-                                                               1,
-                                                               &description,
-                                                               &audioConverter)
-                        if status != noErr { print("Failed to setup converter:", status) }
-                    } else {
-                        print("Couldn't get audio converter description")
-                    }
-                #endif
-            }
-        }
-    }
-    
-    public func encode(_ sampleBuffer: CMSampleBuffer,
-                       onComplete: @escaping ([UInt8]?, OSStatus, CMTime?) -> Void)
-    {
-        self.encoderQ.async {
-            if self.audioConverter == nil { self.setupEncoder(from: sampleBuffer) }
-            guard let audioConverter = self.audioConverter else { return }
-            
-            let numberOfSamples         = CMSampleBufferGetNumSamples(sampleBuffer)
-            let duration                = CMSampleBufferGetDuration(sampleBuffer)
-            var pcmBufferSize: UInt32   = 0
-            
-            if let sampleBytes = getBytes(from: sampleBuffer) {
-                
-                if self.makeBytesStereo {
-                    
-                    var actualSamples: [Int16] = []
-                    
-                    /// Build an array of 16 bit samples
-                    stride(from: 0, to: sampleBytes.count, by: 2).forEach({ idx in
-                        if let result = Int16(bytes: [sampleBytes[idx], sampleBytes[idx+1]]) {
-                            actualSamples.append(result)
-                        }
-                    })
-                    
-                    let stereoized = zip(actualSamples, actualSamples).flatMap { [$0, $1] }
-                    let results: [UInt8] = stereoized.flatMap { byteArray(from: $0) }
-                    
-                    self.pcmBuffer.append(contentsOf: results)
-                    
-                } else {
-                    self.pcmBuffer.append(contentsOf: sampleBytes)
-                }
-                
-                self.numberOfSamplesInBuffer += numberOfSamples
-                
-                if self.numberOfSamplesInBuffer < 1024 {
-                    self.previousDuration = duration
-                    return
-                }
-                
-                pcmBufferSize = UInt32(self.pcmBuffer.count)
-            }
-            
-            self.aacBuffer = [UInt8](repeating: 0, count: Int(pcmBufferSize))
-            
-            let outBuffer                   = AudioBufferList.allocate(maximumBuffers: 1)
-            outBuffer[0].mNumberChannels    = self.outASBD!.mChannelsPerFrame
-            outBuffer[0].mDataByteSize      = pcmBufferSize
-            
-            self.aacBuffer.withUnsafeMutableBytes({ rawBufPtr in
-                let ptr = rawBufPtr.baseAddress
-                outBuffer[0].mData = ptr
-            })
-            
-            var ioOutputDataPacketSize: UInt32 = 1
-            
-            let status = AudioConverterFillComplexBuffer(audioConverter,
-                                                         self.fillComplexCallback,
-                                                         Unmanaged.passUnretained(self).toOpaque(),
-                                                         &ioOutputDataPacketSize,
-                                                         outBuffer.unsafeMutablePointer,
-                                                         nil)
-            
-            switch status {
-            case noErr:
-                let aacPayload = Array(self.aacBuffer[0..<Int(outBuffer[0].mDataByteSize)])
-                onComplete(aacPayload, noErr, duration)
-            case -1:
-                print("Needed more bytes")
-            default:
-                print("Error converting buffer:", status)
-                onComplete(nil, status, nil)
-            }
-        }
-    }
-    
     
     fileprivate func audioConverterCallback(
         _ ioNumberDataPackets: UnsafeMutablePointer<UInt32>,

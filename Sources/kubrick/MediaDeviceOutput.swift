@@ -16,6 +16,15 @@ internal typealias MakeMediaDeviceOutput = (Source, MediaDeviceOutputCreateCallb
             return output
         case .audio?:
             let output = AVCaptureAudioDataOutput()
+            #if os(macOS)
+                output.audioSettings = [
+                    AVFormatIDKey: kAudioFormatLinearPCM,
+                    AVLinearPCMBitDepthKey: 16,
+                    AVLinearPCMIsFloatKey: false,
+                    AVLinearPCMIsNonInterleaved: false,
+                ]
+            #endif
+
             onCreate(output)
             return output
         case .none:

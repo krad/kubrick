@@ -10,6 +10,7 @@ class AudioSinkTests: XCTestCase {
 
     #if os(macOS)
     func test_that_we_can_encode_pcm_samples_into_aac() {
+        useRealDeviceIO()
         
         let discovery = AVDeviceDiscoverer()
         let audioSrc  = discovery.sources.filter { $0.type == .audio }.first
