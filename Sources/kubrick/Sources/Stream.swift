@@ -54,6 +54,9 @@ public class Stream: StreamProtocol {
         self.videoEncoderSink?.nextSinks.append(self.muxSink)
         self.audioEncoderSink?.nextSinks.append(self.muxSink)
         
+        // Add the devices as inputs to the session
+        self.devices.forEach { (device) in self.session.addInput(device) }
+        
         // That's it.  Don't wire any of our sinks into the pipeline until we're ready.
         return
     }
