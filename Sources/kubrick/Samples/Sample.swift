@@ -41,11 +41,7 @@ public protocol Sample {
         }
         
         public var type: SampleType {
-            if let format = self.format {
-                if let t = SampleType(rawValue: format.mediaType) {
-                    return t
-                }
-            }
+            if let format = self.format { return format.mediaType }
             return .unknown
         }
     }

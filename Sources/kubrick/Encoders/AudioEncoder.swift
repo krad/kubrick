@@ -1,4 +1,4 @@
-public typealias AudioEncodedCallback = ([UInt8]?, Rational?) -> Void
+public typealias AudioEncodedCallback = (Sample) -> Void
 
 public enum AudioEncoderError: Error {
     case failedSetup

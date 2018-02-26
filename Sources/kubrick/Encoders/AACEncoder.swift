@@ -10,6 +10,15 @@ internal class AACEncoder: AudioEncoder {
     public var configured: Bool = false
     private var audioConverter: AudioConverterRef?
 
+    private var encoderQ = DispatchQueue(label: "aac.encoder.q")
+    
+    fileprivate var aacBuffer: [UInt8] = []
+    private var pcmBuffer = ThreadSafeArray<UInt8>()
+    private var numberOfSamplesInBuffer: Int = 0
+    
+    private var outASBD: AudioStreamBasicDescription?
+    private var makeBytesStereo = false
+
     public init() {
         self.audioConverter = nil
     }
@@ -94,23 +103,30 @@ internal class AACEncoder: AudioEncoder {
                 outBuffer[0].mData = ptr
             })
 
+            var packetDescription = AudioStreamPacketDescription()
+            
             var ioOutputDataPacketSize: UInt32 = 1
             let status = AudioConverterFillComplexBuffer(encoder,
                                                          self.fillComplexCallback,
                                                          Unmanaged.passUnretained(self).toOpaque(),
                                                          &ioOutputDataPacketSize,
                                                          outBuffer.unsafeMutablePointer,
-                                                         nil)
+                                                         &packetDescription)
             
             switch status {
             case noErr:
-                let aacPayload = Array(self.aacBuffer[0..<Int(outBuffer[0].mDataByteSize)])
-                onComplete(aacPayload, sample.duration)
+                var aacPayload = Array(self.aacBuffer[0..<Int(outBuffer[0].mDataByteSize)])
+                if let newSample = self.buildNewSample(with: &aacPayload,
+                                                       packetDescription: &packetDescription,
+                                                       duration: sample.duration.time,
+                                                       numberOfSamples: sample.numberOfSamples)
+                {
+                    onComplete(newSample)
+                }
             case -1:
                 print("Needed more bytes")
             default:
                 print("Error converting buffer:", status)
-                onComplete(nil, nil)
             }
         }
     }
@@ -130,20 +146,44 @@ internal class AACEncoder: AudioEncoder {
         return results
     }
     
-    
-    ////////////////////////////////////////////////////////////
-    //////////// LEGACY
-    ////////////////////////////////////////////////////////////
-    
-    private var encoderQ  = DispatchQueue(label: "aac.encoder.q")
-    private var callbackQ = DispatchQueue(label: "aac.encoder.callback.q")
-    
-    fileprivate var aacBuffer: [UInt8] = []
-    private var pcmBuffer = ThreadSafeArray<UInt8>()
-    private var numberOfSamplesInBuffer: Int = 0
-    
-    private var outASBD: AudioStreamBasicDescription?
-    private var makeBytesStereo = false
+    func buildNewSample(with payload: inout [UInt8],
+                        packetDescription: inout AudioStreamPacketDescription,
+                        duration: CMTime,
+                        numberOfSamples: Int) -> CMSampleBuffer?
+    {
+        var outFormat: CMAudioFormatDescription?
+        CMAudioFormatDescriptionCreate(kCFAllocatorDefault,
+                                       &self.outASBD!,
+                                       0, nil,
+                                       0, nil,
+                                       nil,
+                                       &outFormat)
+
+        var blockBuffer: CMBlockBuffer?
+        CMBlockBufferCreateWithMemoryBlock(kCFAllocatorDefault,
+                                           &payload,
+                                           payload.count,
+                                           kCFAllocatorNull,
+                                           nil,
+                                           0,
+                                           payload.count,
+                                           0,
+                                           &blockBuffer)
+        
+        var newSample: CMSampleBuffer?
+        CMAudioSampleBufferCreateWithPacketDescriptions(kCFAllocatorDefault,
+                                                        blockBuffer,
+                                                        true,
+                                                        nil,
+                                                        nil,
+                                                        outFormat!,
+                                                        numberOfSamples,
+                                                        duration,
+                                                        &packetDescription,
+                                                        &newSample)
+
+        return newSample
+    }
     
     fileprivate var fillComplexCallback: AudioConverterComplexInputDataProc = { (inAudioConverter,
         ioDataPacketCount, ioData, outDataPacketDescriptionPtrPtr, inUserData) in

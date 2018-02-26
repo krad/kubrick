@@ -28,7 +28,7 @@ class AudioSinkTests: XCTestCase {
 
         XCTAssertNoThrow(try mic.set(reader: audioReader))
         
-        let out = MockSink<AudioSamplePacket>()
+        let out = MockSink<kubrick.Sample>()
         aacSink.nextSinks.append(out)
         XCTAssertEqual(0, out.samples.count)
 
@@ -39,6 +39,13 @@ class AudioSinkTests: XCTestCase {
 
         session.stopRunning()
         XCTAssertTrue(out.samples.count > 0)
+        
+        let aSample = out.samples.first
+        XCTAssertNotNil(aSample?.format)
+        
+        let format = aSample?.format
+        XCTAssertEqual(format?.mediaType, .audio)
+        XCTAssertEqual(format?.mediaSubType, .aac)
         
     }
     #endif

@@ -1,6 +1,8 @@
+import grip
+
 public protocol MediaFormat {
-    var mediaType: String { get }
-    var mediaSubType: String { get }
+    var mediaType: SampleType { get }
+    var mediaSubType: SampleSubType { get }
     var details: MediaSpecificFormatDescription? { get }
 }
 
@@ -17,6 +19,11 @@ public struct AudioFormatDescription: MediaSpecificFormatDescription {
     var bitsPerChannel: UInt32
 }
 
+public struct VideoFormatDescription: MediaSpecificFormatDescription {
+    var dimensions: VideoDimensions
+    var params: [[UInt8]]
+}
+
 public enum SampleType: String {
     case audio    = "soun"
     case video    = "vide"
@@ -27,6 +34,14 @@ public enum SampleType: String {
     case timecode = "tmcd"
     case metadata = "meta"
     case unknown  = "wat?"
+}
+
+public enum SampleSubType: String {
+    case h264    = "avc1"
+    case aac     = "aac "
+    case lpcm    = "lpcm"
+    case twoVUY  = "2vuy"
+    case unknown = "wat?"
 }
 
 #if os(macOS) || os(iOS)
@@ -57,19 +72,43 @@ public enum SampleType: String {
         }
     }
     
+    extension VideoFormatDescription {
+        init(_ format: CMVideoFormatDescription) {
+            let dim         = CMVideoFormatDescriptionGetDimensions(format)
+            self.dimensions = VideoDimensions(width: UInt32(dim.width), height: UInt32(dim.height))
+            self.params     = getVideoFormatDescriptionData(format)
+        }
+    }
+    
     extension CMFormatDescription: MediaFormat {
         
-        public var mediaType: String {
-            return fourCCToString(CMFormatDescriptionGetMediaType(self))
+        public var mediaType: SampleType {
+            if let st = SampleType(rawValue: fourCCToString(CMFormatDescriptionGetMediaType(self))) {
+                return st
+            } else {
+                return .unknown
+            }
         }
         
-        public var mediaSubType: String {
-            return fourCCToString(CMFormatDescriptionGetMediaSubType(self))
+        public var mediaSubType: SampleSubType {
+            if let st = SampleSubType(rawValue: fourCCToString(CMFormatDescriptionGetMediaSubType(self))) {
+                return st
+            } else {
+                return .unknown
+            }
         }
         
         public var details: MediaSpecificFormatDescription? {
-            if let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(self) {
-                return AudioFormatDescription(asbd.pointee)
+            switch self.mediaType {
+            case .video:
+                return VideoFormatDescription(self)
+
+            case .audio:
+                if let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(self) {
+                    return AudioFormatDescription(asbd.pointee)
+                }
+            default:
+                return nil
             }
             return nil
         }
@@ -84,5 +123,28 @@ public enum SampleType: String {
             UInt16((value & 0xFF)) ]
         return String(utf16CodeUnits: utf16, count: 4)
     }
+    
+    public func getVideoFormatDescriptionData(_ format: CMFormatDescription) -> [[UInt8]] {
+        var results: [[UInt8]] = []
+        
+        var numberOfParamSets: size_t = 0
+        CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, 0, nil, nil, &numberOfParamSets, nil)
+        
+        for idx in 0..<numberOfParamSets {
+            var params: UnsafePointer<UInt8>? = nil
+            var paramsLength: size_t         = 0
+            var headerLength: Int32          = 4
+            CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, idx, &params, &paramsLength, nil, &headerLength)
+            
+            let bufferPointer   = UnsafeBufferPointer(start: params, count: paramsLength)
+            let paramsUnwrapped = Array(bufferPointer)
+            
+            let result: [UInt8] =  paramsUnwrapped
+            results.append(result)
+        }
+        
+        return results
+    }
+
     
 #endif

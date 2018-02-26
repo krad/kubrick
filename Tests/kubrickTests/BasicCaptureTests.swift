@@ -63,10 +63,10 @@ class BasicCaptureTests: XCTestCase {
         XCTAssertEqual(aSample?.type, .audio)
         
         XCTAssertNotNil(vSample?.format)
-        XCTAssertEqual(vSample?.format?.mediaSubType, "2vuy")
+        XCTAssertEqual(vSample?.format?.mediaSubType, .twoVUY)
         
         XCTAssertNotNil(aSample?.format)
-        XCTAssertEqual(aSample?.format?.mediaSubType, "lpcm")
+        XCTAssertEqual(aSample?.format?.mediaSubType, .lpcm)
         
         XCTAssertNotNil(aSample?.format)
         XCTAssertNotNil(aSample?.format?.details)

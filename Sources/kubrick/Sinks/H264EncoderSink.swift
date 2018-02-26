@@ -1,6 +1,7 @@
 import Dispatch
 import grip
 
+/// This is an H264 encoder sink.  You pass in YUV data from a video reader and it outputs h264 compressed samples
 public class H264EncoderSink: Sink<Sample>, NextSinkProtocol {
     
     public typealias OutputType = Sample

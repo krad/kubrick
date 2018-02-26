@@ -1,23 +1,20 @@
 import Dispatch
 import grip
 
+
+/// This is an AACEncoder sink.
+/// You pass in LPCM samples and it dispatches AudioSamplePacket's with AAC compressed audio
 public class AACEncoderSink: Sink<Sample>, NextSinkProtocol {
     public var encoder: AudioEncoder?
     
-    public var nextSinks: [Sink<AudioSamplePacket>] = []
-    
+    public var nextSinks: [Sink<Sample>] = []
     
     #if os(macOS) || os(iOS)
     public override func push(input: Sample) {
         if self.encoder == nil { self.encoder = AACEncoder() }
-        self.encoder?.encode(input, onComplete: { (bytes, duration) in
-            if let bytes = bytes, let duration = duration {
-                let packet = AudioSamplePacket(duration: duration.numerator,
-                                               timescale: UInt32(duration.denominator),
-                                               data: bytes)
-                for sink in self.nextSinks {
-                    sink.push(input: packet)
-                }
+        self.encoder?.encode(input, onComplete: { sample in
+            for sink in self.nextSinks {
+                sink.push(input: sample)
             }
         })
     }    

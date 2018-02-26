@@ -42,6 +42,15 @@ class VideoSinkTests: XCTestCase {
         
         XCTAssertTrue(out.samples.count > 0)
         
+        let vSample = out.samples.first
+        XCTAssertEqual(vSample?.type, .video)
+
+        let format = vSample?.format
+        XCTAssertNotNil(format)
+        XCTAssertEqual(format?.mediaType, .video)
+        XCTAssertEqual(format?.mediaSubType, .h264)
+        
+        XCTAssertNotNil(format?.details)
         
     }
     #endif
