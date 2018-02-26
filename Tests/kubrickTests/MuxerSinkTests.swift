@@ -1,7 +1,7 @@
 import XCTest
 @testable import kubrick
 
-class TCPSinkTests: XCTestCase {
+class MuxerSinkTests: XCTestCase {
     
     #if os(macOS)
     func test_that_we_can_capture_data() {
