@@ -13,6 +13,8 @@ public protocol MediaSource {
     func devices() -> [MediaDevice]
 }
 
+
+/// Used to discover devices available to the system
 public struct AVDeviceDiscoverer: SourceDiscoverer {
     
     public private(set) var mediaSource: MediaSource

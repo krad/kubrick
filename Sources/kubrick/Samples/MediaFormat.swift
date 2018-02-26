@@ -9,14 +9,14 @@ public protocol MediaFormat {
 public protocol MediaSpecificFormatDescription { }
 
 public struct AudioFormatDescription: MediaSpecificFormatDescription {
-    var sampleRate: Float64
-    var formatID: UInt32
-    var formatFlags: UInt32
-    var bytesPerPacket: UInt32
-    var framesPerPacket: UInt32
-    var bytesPerFrame: UInt32
-    var channelsPerFrame: UInt32
-    var bitsPerChannel: UInt32
+    var sampleRate:         Float64
+    var formatID:           UInt32
+    var formatFlags:        UInt32
+    var bytesPerPacket:     UInt32
+    var framesPerPacket:    UInt32
+    var bytesPerFrame:      UInt32
+    var channelsPerFrame:   UInt32
+    var bitsPerChannel:     UInt32
 }
 
 extension AudioFormatDescription: Equatable {

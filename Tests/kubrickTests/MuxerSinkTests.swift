@@ -30,12 +30,13 @@ class MuxerSinkTests: XCTestCase {
         let aacSink = AACEncoderSink()
         audio.sinks.append(aacSink)
         
-        let tcpSessionSink = MuxerSink()
-        h264Sink.nextSinks.append(tcpSessionSink)
-        aacSink.nextSinks.append(tcpSessionSink)
+        let muxSink = MuxerSink()
+        h264Sink.nextSinks.append(muxSink)
+        aacSink.nextSinks.append(muxSink)
         
-        XCTAssertNil(tcpSessionSink.videoFormat)
-        XCTAssertNil(tcpSessionSink.audioFormat)
+        XCTAssertNil(muxSink.videoFormat)
+        XCTAssertNil(muxSink.audioFormat)
+        XCTAssertEqual(muxSink.streamType, [])
         
         session.startRunning()
         
@@ -43,10 +44,10 @@ class MuxerSinkTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { e.fulfill() }
         self.wait(for: [e], timeout: 5)
         
-        XCTAssertNotNil(tcpSessionSink.videoFormat)
-        XCTAssertNotNil(tcpSessionSink.audioFormat)
+        XCTAssertNotNil(muxSink.videoFormat)
+        XCTAssertNotNil(muxSink.audioFormat)
+        XCTAssertEqual(muxSink.streamType, [.video, .audio])
 
-        
     }
     #endif
 
