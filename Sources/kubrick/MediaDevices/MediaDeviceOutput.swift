@@ -1,5 +1,5 @@
 public protocol MediaDeviceOutput {
-    func set(sink: Sink)
+    func set(_ reader: MediaDeviceReader)
 }
 
 internal typealias MediaDeviceOutputCreateCallback = (MediaDeviceOutput) -> Void
@@ -39,17 +39,17 @@ internal typealias MakeMediaDeviceOutput = (Source, MediaDeviceOutputCreateCallb
     }
     
     extension AVCaptureVideoDataOutput: MediaDeviceOutput {
-        public func set(sink: Sink) {
-            if let delegate = sink as? AVCaptureVideoDataOutputSampleBufferDelegate {
-                self.setSampleBufferDelegate(delegate, queue: sink.q)
+        public func set(_ reader: MediaDeviceReader) {
+            if let delegate = reader as? AVCaptureVideoDataOutputSampleBufferDelegate {
+                self.setSampleBufferDelegate(delegate, queue: reader.q)
             }
         }
     }
     
     extension AVCaptureAudioDataOutput: MediaDeviceOutput {
-        public func set(sink: Sink) {
-            if let delegate = sink as? AVCaptureAudioDataOutputSampleBufferDelegate {
-                self.setSampleBufferDelegate(delegate, queue: sink.q)
+        public func set(_ reader: MediaDeviceReader) {
+            if let delegate = reader as? AVCaptureAudioDataOutputSampleBufferDelegate {
+                self.setSampleBufferDelegate(delegate, queue: reader.q)
             }
         }
     }

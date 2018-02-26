@@ -14,7 +14,7 @@ class MockDeviceInput: MediaDeviceInput {
 }
 
 class MockDeviceOutput: MediaDeviceOutput {
-    func set(sink: Sink) { }
+    func set(_ reader: MediaDeviceReader) { }
 }
 
 var makeInputMock: MakeMediaDeviceInput = { src, onCreate in
@@ -27,6 +27,13 @@ var makeOutputMock: MakeMediaDeviceOutput = { src, onCreate in
     let output = MockDeviceOutput()
     onCreate(output)
     return output
+}
+
+class MockSink<T>: Sink<T> {
+    var samples: [T] = []
+    override func push(input: T) {
+        self.samples.append(input)
+    }
 }
 
 #if os(macOS) || os(iOS)
@@ -66,7 +73,6 @@ var makeOutputMock: MakeMediaDeviceOutput = { src, onCreate in
 #endif
 
 class MockMicrophoneSource: Source {
-    var output: Sink?
     var uniqueID: String        = UUID().uuidString
     var isConnected: Bool       = true
     var position: Position      = .unspecified

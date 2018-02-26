@@ -1,28 +1,23 @@
 import Dispatch
+import grip
 
-public class AACEncoderSink: Sink {
-    
-    public var q: DispatchQueue
-    public var mediaType: MediaType = .audio
-    public var sink: Sink?
+public class AACEncoderSink: Sink<Sample> {
     public var encoder: AudioEncoder?
     
-    init() {
-        self.q = DispatchQueue(label: "aac.encoder.sink.q")
-    }
+    public var encodedSamples = ThreadSafeArray<AudioSamplePacket>()
+    
+    #if os(macOS) || os(iOS)
+    public override func push(input: Sample) {
+        if self.encoder == nil { self.encoder = AACEncoder() }
+        self.encoder?.encode(input, onComplete: { (bytes, duration) in
+            if let bytes = bytes, let duration = duration {
+                let packet = AudioSamplePacket(duration: duration.numerator,
+                                               timescale: UInt32(duration.denominator),
+                                               data: bytes)
+                self.encodedSamples.append(packet)
+            }
+        })
+    }    
+    #endif
 
 }
-
-
-#if os(macOS) || os(iOS)
-
-    extension AACEncoderSink {
-        public func push(sample: Sample) {
-            if self.encoder == nil { self.encoder = AACEncoder() }
-            self.encoder?.encode(sample, onComplete: { (bytes, duration) in
-                print("Encoded \(duration) aac")
-            })
-        }
-    }
-    
-#endif

@@ -12,3 +12,14 @@ extension Rational: Hashable {
         return lhs.hashValue == rhs.hashValue
     }
 }
+
+#if os(macOS) || os(iOS)
+    import CoreMedia
+    
+    extension Rational {
+        var time: CMTime {
+            return CMTimeMake(self.numerator, self.denominator)
+        }
+    }
+    
+#endif

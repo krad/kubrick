@@ -4,10 +4,19 @@ public enum SinkError: Error {
     case incompatibleMediaType
 }
 
-public protocol Sink {
-    var q: DispatchQueue { get }
-    var mediaType: MediaType { get }
-    var sink: Sink? { get }
-    func push(sample: Sample)
+public class Sink<IN>: SinkProtocol {
+    public typealias InputType  = IN
+    
+    open var nextSinks: [Sink] = []
+    
+    open func push(input: IN) {
+        print(#function, "Override the push input in class that inherits from Sink")
+    }
+    
 }
 
+
+public protocol SinkProtocol {
+    associatedtype InputType
+    func push(input: InputType)
+}

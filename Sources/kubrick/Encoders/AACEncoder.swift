@@ -1,9 +1,10 @@
 import Foundation
-import AudioToolbox
-import CoreMedia
 import Dispatch
 
 #if os(macOS) || os(iOS)
+import AudioToolbox
+import CoreMedia
+
 internal class AACEncoder: AudioEncoder {
     
     public var configured: Bool = false
