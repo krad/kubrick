@@ -1,7 +1,10 @@
 import Dispatch
 import grip
 
-public class H264EncoderSink: Sink<Sample> {
+public class H264EncoderSink: Sink<Sample>, NextSinkProtocol {
+    
+    public typealias OutputType = Sample
+    public var nextSinks: [Sink<Sample>] = []
 
     public var encoder: VideoEncoder?
     
@@ -20,4 +23,3 @@ public class H264EncoderSink: Sink<Sample> {
     #endif
     
 }
-

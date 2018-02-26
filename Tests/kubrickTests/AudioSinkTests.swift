@@ -1,5 +1,6 @@
 import XCTest
 @testable import kubrick
+import grip
 
 class AudioSinkTests: XCTestCase {
     
@@ -26,7 +27,10 @@ class AudioSinkTests: XCTestCase {
         session.addInput(mic)
 
         XCTAssertNoThrow(try mic.set(reader: audioReader))
-        XCTAssertEqual(0, aacSink.encodedSamples.count)
+        
+        let out = MockSink<AudioSamplePacket>()
+        aacSink.nextSinks.append(out)
+        XCTAssertEqual(0, out.samples.count)
 
         session.startRunning()
         let e = self.expectation(description: "Should encode some audio samples")
@@ -34,8 +38,8 @@ class AudioSinkTests: XCTestCase {
         self.wait(for: [e], timeout: 3)
 
         session.stopRunning()
-        XCTAssertTrue(aacSink.encodedSamples.count > 0)
-                
+        XCTAssertTrue(out.samples.count > 0)
+        
     }
     #endif
     

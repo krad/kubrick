@@ -1,10 +1,11 @@
 import Dispatch
 import grip
 
-public class AACEncoderSink: Sink<Sample> {
+public class AACEncoderSink: Sink<Sample>, NextSinkProtocol {
     public var encoder: AudioEncoder?
     
-    public var encodedSamples = ThreadSafeArray<AudioSamplePacket>()
+    public var nextSinks: [Sink<AudioSamplePacket>] = []
+    
     
     #if os(macOS) || os(iOS)
     public override func push(input: Sample) {
@@ -14,7 +15,9 @@ public class AACEncoderSink: Sink<Sample> {
                 let packet = AudioSamplePacket(duration: duration.numerator,
                                                timescale: UInt32(duration.denominator),
                                                data: bytes)
-                self.encodedSamples.append(packet)
+                for sink in self.nextSinks {
+                    sink.push(input: packet)
+                }
             }
         })
     }    
