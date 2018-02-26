@@ -37,7 +37,7 @@ class VideoSinkTests: XCTestCase {
         session.startRunning()
     
         let e = self.expectation(description: "Capture and compress some video data")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { e.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { e.fulfill() }
         self.wait(for: [e], timeout: 3)
         
         XCTAssertTrue(out.samples.count > 0)
