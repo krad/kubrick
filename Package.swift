@@ -12,7 +12,7 @@ let package = Package(
             targets: ["kubrick"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/krad/grip.git", from: "1.2.2"),
+        .package(url: "https://github.com/krad/grip.git", from: "1.2.3"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
