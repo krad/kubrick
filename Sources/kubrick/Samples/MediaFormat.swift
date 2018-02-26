@@ -19,9 +19,42 @@ public struct AudioFormatDescription: MediaSpecificFormatDescription {
     var bitsPerChannel: UInt32
 }
 
+extension AudioFormatDescription: Equatable {
+    // TODO: There's gotta be a better way that this
+    public static func ==(lhs: AudioFormatDescription, rhs: AudioFormatDescription) -> Bool {
+        if lhs.sampleRate == rhs.sampleRate {
+            if lhs.formatID == rhs.formatID {
+                if lhs.formatFlags == rhs.formatFlags {
+                    if lhs.bytesPerPacket == rhs.bytesPerPacket {
+                        if lhs.framesPerPacket == rhs.framesPerPacket {
+                            if lhs.bytesPerFrame == rhs.bytesPerFrame {
+                                if lhs.channelsPerFrame == rhs.channelsPerFrame {
+                                    if lhs.bitsPerChannel == rhs.bitsPerChannel {
+                                        return true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false
+    }
+}
+
 public struct VideoFormatDescription: MediaSpecificFormatDescription {
     var dimensions: VideoDimensions
     var params: [[UInt8]]
+}
+
+extension VideoFormatDescription: Equatable {
+    public static func ==(lhs: VideoFormatDescription, rhs: VideoFormatDescription) -> Bool {
+        if lhs.dimensions == rhs.dimensions {
+            return true
+        }
+        return false
+    }
 }
 
 public enum SampleType: String {

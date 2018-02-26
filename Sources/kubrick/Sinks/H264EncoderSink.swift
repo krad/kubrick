@@ -9,7 +9,7 @@ public class H264EncoderSink: Sink<Sample>, NextSinkProtocol {
 
     public var encoder: VideoEncoder?
     
-    init(settings: H264Settings) throws {
+    public init(settings: H264Settings = H264Settings()) throws {
         self.encoder = try H264Encoder(settings)
     }
     

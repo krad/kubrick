@@ -5,7 +5,7 @@ public class Camera: MediaDevice {
     public var output: MediaDeviceOutput?
     public var reader: MediaDeviceReader?
 
-    init(_ source: Source) {
+    public init(_ source: Source) {
         self.source = source
     }
 }

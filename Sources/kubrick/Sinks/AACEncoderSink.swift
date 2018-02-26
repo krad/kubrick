@@ -9,6 +9,8 @@ public class AACEncoderSink: Sink<Sample>, NextSinkProtocol {
     
     public var nextSinks: [Sink<Sample>] = []
     
+    public override init() { }
+    
     #if os(macOS) || os(iOS)
     public override func push(input: Sample) {
         if self.encoder == nil { self.encoder = AACEncoder() }

@@ -18,9 +18,7 @@ class VideoSinkTests: XCTestCase {
         
         var camera      = Camera(videoSrc!)
         let reader      = VideoReader()
-        let settings    = H264Settings(profile: .h264Baseline_3_0,
-                                       frameRate: 25.0,
-                                       width: 480, height: 640)
+        let settings    = H264Settings()
         
         var encoderSink: H264EncoderSink?
         XCTAssertNoThrow(encoderSink = try H264EncoderSink(settings: settings))

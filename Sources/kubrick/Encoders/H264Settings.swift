@@ -1,10 +1,12 @@
 public protocol VideoEncoderSettings {}
 
 public struct H264Settings {
-    var profile: H264ProfileLevel
-    var frameRate: Float
-    var width: Int  = 480
-    var height: Int = 640
+    var profile: H264ProfileLevel   = .h264Baseline_3_0
+    var frameRate: Float            = 25.0
+    var width: Int                  = 480
+    var height: Int                 = 640
+    
+    public init() { }
 }
 
 public enum H264ProfileLevel {

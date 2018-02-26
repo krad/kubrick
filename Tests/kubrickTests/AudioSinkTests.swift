@@ -28,7 +28,7 @@ class AudioSinkTests: XCTestCase {
 
         XCTAssertNoThrow(try mic.set(reader: audioReader))
         
-        let out = MockSink<kubrick.Sample>()
+        let out = MockSink<Sample>()
         aacSink.nextSinks.append(out)
         XCTAssertEqual(0, out.samples.count)
 
