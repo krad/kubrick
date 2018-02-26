@@ -16,7 +16,23 @@ public class MuxerSink: Sink<Sample>, NextSinkProtocol {
     /// - Parameter input: Sample that supports Audio / Video
     public override func push(input: Sample) {
         guard checkForValidFormat(for: input) else { return }
-        self.send(bytes: input.bytes)
+        switch input.type {
+        case .audio:
+            let packet = AudioSamplePacket(duration: input.duration.numerator,
+                                           timescale: UInt32(input.duration.denominator),
+                                           data: input.bytes)
+            self.send(packet)
+        case .video:
+            var packet = VideoSamplePacket(duration: input.duration.numerator,
+                                           timescale: UInt32(input.duration.denominator),
+                                           data: input.bytes)
+            
+            packet.isSync                    = input.isSync
+            packet.dependsOnOther            = input.dependsOnOthers
+            packet.earlierDisplayTimesAllows = input.earlierPTSAllowed
+            self.send(packet)
+        default: return
+        }
     }
     
     /// checkForValidFormat - Will read the format details of the sample and store/send them if they change.
@@ -44,9 +60,9 @@ public class MuxerSink: Sink<Sample>, NextSinkProtocol {
         return false
     }
     
-    private func send(bytes: [UInt8]) {
+    private func send(_ packet: BinaryEncodable) {
         for sink in self.nextSinks {
-            sink.push(input: bytes)
+            sink.push(input: packet)
         }
     }
     

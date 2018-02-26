@@ -23,7 +23,8 @@ class StreamTests: XCTestCase {
         XCTAssertNotNil(stream?.audioEncoderSink)
         
         XCTAssertEqual(1, stream?.videoEncoderSink?.nextSinks.count)
-        XCTAssertEqual(1, stream?.audioEncoderSink?.nextSinks.count)        
+        XCTAssertEqual(1, stream?.audioEncoderSink?.nextSinks.count)
+        XCTAssertNil(stream?.endPointSink)
     }
     
 }

@@ -3,7 +3,7 @@ import Dispatch
 public protocol MediaDeviceReader {
     var mediaType: MediaType { get }
     var q: DispatchQueue { get }
-    var sinks: [Sink<Sample>] { get }
+    var sinks: [Sink<Sample>] { get set }
 }
 
 extension MediaDeviceReader {

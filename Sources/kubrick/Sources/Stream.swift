@@ -4,6 +4,7 @@ public protocol StreamProtocol {
     var session: CaptureSession { get }
     var devices: [MediaDevice] { get }
     var readers: [MediaDeviceReader] { get }
+    func set(endpoint: Writeable)
 }
 
 public enum StreamError: Error {
@@ -19,6 +20,7 @@ public class Stream: StreamProtocol {
     internal var videoEncoderSink: H264EncoderSink?
     internal var audioEncoderSink: AACEncoderSink?
     internal var muxSink: MuxerSink
+    internal var endPointSink: EndpointSink?
     
     public init(devices: [MediaDevice]) throws {
         guard devices.count > 0 else { throw StreamError.noDevicesSelected }
@@ -56,4 +58,48 @@ public class Stream: StreamProtocol {
         return
     }
     
+    public func set(endpoint: Writeable) {
+        let sink          = EndpointSink(endpoint)
+        self.endPointSink = sink
+        
+        // Attach the video encoders to the video reader
+        if let videoEncoder = self.videoEncoderSink {
+            let videoReaders = self.readers.filter { $0.mediaType == .video }
+            for var reader in videoReaders {
+                reader.sinks.append(videoEncoder)
+            }
+        }
+        
+        // Attach the audio encoder to the audio reader
+        if let audioEncoder = self.audioEncoderSink {
+            let audioReaders = self.readers.filter { $0.mediaType == .audio }
+            for var reader in audioReaders {
+                reader.sinks.append(audioEncoder)
+            }
+        }
+        
+        // Get the stream type from the mux sink
+        // We appending the mux sinks to the av encoders earlier so by now they should have samples
+        let streamTypePacket = StreamTypePacket(streamType: muxSink.streamType)
+        self.endPointSink?.push(input: streamTypePacket)
+        
+        // If we have a video format, build the config packets and send them
+        if let videoFormat = muxSink.videoFormat {
+            do {
+                let paramsPacket     = try VideoParamSetPacket(params: videoFormat.params)
+                let dimensionsPacket = VideoDimensionPacket(width: videoFormat.dimensions.width,
+                                                            height: videoFormat.dimensions.height)
+
+                self.endPointSink?.push(input: paramsPacket)
+                self.endPointSink?.push(input: dimensionsPacket)
+            } catch let error {
+                print("Problem configuring video portion of stream:", error)
+            }
+        }
+        
+        // Append the endpoint sink to the mux sink
+        // Audio / Video data should start streaming over the network from here
+        muxSink.nextSinks.append(sink)
+    }
+
 }
