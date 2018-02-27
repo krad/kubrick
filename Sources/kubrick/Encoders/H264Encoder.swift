@@ -74,8 +74,8 @@ internal class H264Encoder: VideoEncoder {
             
             var duration = sample.duration.time
             if duration.value <= 0 {
-                print("===== Modifying frame rate")
                 duration = CMTimeMake(1*1000, Int32(self.settings.frameRate)*1000)
+                print("===== Modifying frame rate", duration)
             } else {
                 print("===== Duration didn't need modifying:", duration)
             }

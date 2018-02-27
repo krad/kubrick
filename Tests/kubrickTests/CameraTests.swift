@@ -24,13 +24,13 @@ class CameraTests: XCTestCase {
     
         let camera = Camera(src!)
         XCTAssertNotNil(camera)
-        XCTAssertEqual(24.0, camera.frameRate)
+        XCTAssertEqual(30.0, camera.frameRate)
 
         let session = CaptureSession()
         session.addInput(camera)
         
         session.base.beginConfiguration()
-        camera.frameRate = 30.0
+        camera.frameRate = 25.0
         session.base.commitConfiguration()
 
         // iOS complains about this.

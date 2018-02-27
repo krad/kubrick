@@ -16,6 +16,7 @@ public class Camera: MediaDevice {
     public init(_ source: Source) {
         self.source     = source
         self.frameRate  = 30
+        self.update(frameRate: self.frameRate)
     }
     
 }
@@ -75,15 +76,15 @@ public enum CameraOrientation {
         public func set(orientation: UIInterfaceOrientation) {
             switch orientation {
                 case .landscapeLeft:
-                    self.update(orientation: .landscapeRight)
+                    self.orientation = .landscapeRight
                 case .landscapeRight:
-                    self.update(orientation: .landscapeLeft)
+                    self.orientation = .landscapeLeft
                 case .portrait:
-                    self.update(orientation: .portrait)
+                    self.orientation = .portrait
                 case .portraitUpsideDown:
-                    self.update(orientation: .upsideDown)
+                    self.orientation = .upsideDown
                 default:
-                    self.update(orientation: .portrait)
+                    self.orientation = .portrait
             }
         }
         #endif
