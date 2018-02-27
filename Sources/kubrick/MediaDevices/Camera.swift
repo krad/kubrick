@@ -45,20 +45,21 @@ public enum CameraOrientation {
                         print(format)
                         for fpsRange in format.videoSupportedFrameRateRanges {
                             print(fpsRange)
-                            if fpsRange.maxRate <= frameRate {
+                            if fpsRange.maxRate >= frameRate && fpsRange.minRate <= frameRate {
                                 let desc = format.formatDescription
                                 let subType = fourCCToString(CMFormatDescriptionGetMediaSubType(desc))
-                                if subType == "2vuy" {
-                                    print(format)
+                                if subType == "2vuy" || subType == "420f" {
+                                    print("==== Got it")
                                     src.activeFormat = format
                                     let fps                         = CMTimeMake(1, Int32(frameRate))
                                     src.activeVideoMinFrameDuration = fps
                                     src.activeVideoMaxFrameDuration = fps
+                                    src.unlockForConfiguration()
+                                    break
                                 }
                             }
                         }
                     })
-                    src.unlockForConfiguration()
                 } catch let err {
                     print("Could not configure framerate:", err)
                 }
