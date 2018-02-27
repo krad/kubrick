@@ -1,3 +1,4 @@
+import Dispatch
 import grip
 
 public protocol StreamProtocol {
@@ -88,26 +89,28 @@ public class Stream: StreamProtocol {
         print("Sending stream type:", muxSink.streamType)
         let streamTypePacket = StreamTypePacket(streamType: muxSink.streamType)
         self.endPointSink?.push(input: streamTypePacket)
-        
-        // If we have a video format, build the config packets and send them
-        if let videoFormat = muxSink.videoFormat {
-            do {
-                let paramsPacket     = try VideoParamSetPacket(params: videoFormat.params)
-                let dimensionsPacket = VideoDimensionPacket(width: videoFormat.dimensions.width,
-                                                            height: videoFormat.dimensions.height)
 
-                print("Sending video params", paramsPacket)
-                self.endPointSink?.push(input: paramsPacket)
-                print("Sending dimensions", dimensionsPacket)
-                self.endPointSink?.push(input: dimensionsPacket)
-            } catch let error {
-                print("Problem configuring video portion of stream:", error)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            // If we have a video format, build the config packets and send them
+            if let videoFormat = self.muxSink.videoFormat {
+                do {
+                    let paramsPacket     = try VideoParamSetPacket(params: videoFormat.params)
+                    let dimensionsPacket = VideoDimensionPacket(width: videoFormat.dimensions.width,
+                                                                height: videoFormat.dimensions.height)
+                    
+                    print("Sending video params", paramsPacket)
+                    self.endPointSink?.push(input: paramsPacket)
+                    print("Sending dimensions", dimensionsPacket)
+                    self.endPointSink?.push(input: dimensionsPacket)
+                } catch let error {
+                    print("Problem configuring video portion of stream:", error)
+                }
             }
+            
+            // Append the endpoint sink to the mux sink
+            // Audio / Video data should start streaming over the network from here
+            self.muxSink.nextSinks.append(sink)
         }
-        
-        // Append the endpoint sink to the mux sink
-        // Audio / Video data should start streaming over the network from here
-        muxSink.nextSinks.append(sink)
     }
 
 }
