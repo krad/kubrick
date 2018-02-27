@@ -15,7 +15,7 @@ public class Camera: MediaDevice {
     
     public init(_ source: Source) {
         self.source     = source
-        self.frameRate  = 30
+        self.frameRate  = 25
         self.update(frameRate: self.frameRate)
     }
     
