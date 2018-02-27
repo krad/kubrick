@@ -45,6 +45,9 @@ public enum CameraOrientation {
                     src.activeVideoMinFrameDuration = fps
                     src.activeVideoMaxFrameDuration = fps
                     src.unlockForConfiguration()
+                    
+                    print(src.activeVideoMaxFrameDuration)
+                    print(src.activeVideoMinFrameDuration)
                 } catch let err {
                     print("Could not configure framerate:", err)
                 }
