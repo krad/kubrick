@@ -54,7 +54,14 @@ public class Stream: StreamProtocol {
         
         // Attach the video encoders to the video reader
         if videoReaders.count > 0 {
-            self.videoEncoderSink = try H264EncoderSink()
+            var encoderSettings = H264Settings()
+            
+            let cameras = self.devices.filter { $0.source.type == .video }
+            if let camera = cameras.first as? Camera {
+                encoderSettings.frameRate = Float(camera.frameRate)
+            }
+            
+            self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
             for var reader in videoReaders {
                 reader.sinks.append(self.videoEncoderSink!)
                 muxSink.streamType.insert(.video)
