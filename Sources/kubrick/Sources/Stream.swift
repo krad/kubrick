@@ -36,51 +36,47 @@ public class Stream: StreamProtocol {
             return nil
         }
         
+        let videoReaders = self.readers.filter { $0.mediaType == .video }
+        let audioReaders = self.readers.filter { $0.mediaType == .audio }
+        
+        // Create a muxer sink and wire it into our encoders
+        self.muxSink = MuxerSink()
+
+        // Attach the video encoders to the video reader
+        if videoReaders.count > 0 {
+            self.videoEncoderSink = try H264EncoderSink()
+            for var reader in videoReaders {
+                print("Appending video encoder to video reader", reader)
+                reader.sinks.append(self.videoEncoderSink!)
+                muxSink.streamType.insert(.video)
+            }
+        }
+        
+        // Attach the audio encoder to the audio reader
+        if audioReaders.count > 0 {
+            self.audioEncoderSink = AACEncoderSink()
+            for var reader in audioReaders {
+                reader.sinks.append(self.audioEncoderSink!)
+                muxSink.streamType.insert(.audio)
+            }
+        }
+        
+        self.videoEncoderSink?.nextSinks.append(self.muxSink)
+        self.audioEncoderSink?.nextSinks.append(self.muxSink)
+        
+        // Add the devices as inputs to the session
+        self.devices.forEach { (device) in self.session.addInput(device) }
+
         // Attach each of the readers to their appropriate devices
         for var device in self.devices {
             let rdrs = self.readers.filter { $0.mediaType == device.source.type }
             try rdrs.forEach { try device.set(reader: $0) }
         }
         
-        // Setup appropriate encoders based on what reader's we've created
-        let videoReaders = self.readers.filter { $0.mediaType == .video }
-        let audioReaders = self.readers.filter { $0.mediaType == .audio }
-        
-        if videoReaders.count > 0 { self.videoEncoderSink = try H264EncoderSink() }
-        if audioReaders.count > 0 { self.audioEncoderSink = AACEncoderSink() }
-        
-        // Create a muxer sink and wire it into our encoders
-        self.muxSink = MuxerSink()
-        self.videoEncoderSink?.nextSinks.append(self.muxSink)
-        self.audioEncoderSink?.nextSinks.append(self.muxSink)
-        
-        // Attach the video encoders to the video reader
-        if let videoEncoder = self.videoEncoderSink {
-            for var reader in videoReaders {
-                print("Appending video encoder to video reader", reader)
-                reader.sinks.append(videoEncoder)
-                muxSink.streamType.insert(.video)
-            }
-        }
-        
-        // Attach the audio encoder to the audio reader
-        if let audioEncoder = self.audioEncoderSink {
-            for var reader in audioReaders {
-                print("Appending audio encoder to audio reader", reader)
-                reader.sinks.append(audioEncoder)
-                muxSink.streamType.insert(.audio)
-            }
-        }
-        
-        // Add the devices as inputs to the session
-        self.devices.forEach { (device) in self.session.addInput(device) }
-        
-        // That's it.  Don't wire any of our sinks into the pipeline until we're ready.
         return
     }
     
     public func set(endpoint: Writeable) {
-        print(#function)
         let sink          = EndpointSink(endpoint)
         self.endPointSink = sink
         
