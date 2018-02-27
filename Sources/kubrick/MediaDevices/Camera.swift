@@ -46,6 +46,7 @@ public enum CameraOrientation {
                                 let desc = format.formatDescription
                                 let subType = fourCCToString(CMFormatDescriptionGetMediaSubType(desc))
                                 if subType == "2vuy" {
+                                    print(format)
                                     src.activeFormat = format
                                     let fps                         = CMTimeMake(1, Int32(frameRate))
                                     src.activeVideoMinFrameDuration = fps
