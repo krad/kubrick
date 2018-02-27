@@ -48,17 +48,19 @@ public enum CameraOrientation {
         func update(orientation: CameraOrientation) {
             if let out = self.output as? AVCaptureVideoDataOutput {
                 if let conn = out.connection(with: .video) {
-                    switch orientation {
-                    case .portrait:
-                        conn.videoOrientation = .portrait
-                    case .landscapeRight :
-                        conn.videoOrientation = .landscapeLeft
-                    case .landscapeLeft:
-                        conn.videoOrientation = .landscapeRight
-                    case .upsideDown:
-                        conn.videoOrientation = .portraitUpsideDown
-                    default:
-                        conn.videoOrientation = .portrait
+                    if conn.isVideoOrientationSupported {
+                        switch orientation {
+                        case .portrait:
+                            conn.videoOrientation = .portrait
+                        case .landscapeRight :
+                            conn.videoOrientation = .landscapeLeft
+                        case .landscapeLeft:
+                            conn.videoOrientation = .landscapeRight
+                        case .upsideDown:
+                            conn.videoOrientation = .portraitUpsideDown
+                        default:
+                            conn.videoOrientation = .portrait
+                        }
                     }
                 }
             }
