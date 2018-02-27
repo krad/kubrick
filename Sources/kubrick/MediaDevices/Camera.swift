@@ -5,7 +5,7 @@ public class Camera: MediaDevice {
     public var output: MediaDeviceOutput?
     public var reader: MediaDeviceReader?
     
-    public var frameRate: Float64 = 24.0 {
+    public var frameRate: Float64 {
         didSet { self.update(frameRate: self.frameRate) }
     }
     
@@ -14,7 +14,8 @@ public class Camera: MediaDevice {
     }
     
     public init(_ source: Source) {
-        self.source = source
+        self.source     = source
+        self.frameRate  = 30
     }
     
 }
@@ -35,6 +36,7 @@ public enum CameraOrientation {
     
     extension Camera {
         func update(frameRate: Float64) {
+            print("=========", #function, "Updating frame rate", frameRate)
             if let src = self.source as? AVCaptureDevice {
                 do {
                     try src.lockForConfiguration()
