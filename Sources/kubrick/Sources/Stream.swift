@@ -52,13 +52,18 @@ public class Stream: StreamProtocol {
         let videoReaders = self.readers.filter { $0.mediaType == .video }
         let audioReaders = self.readers.filter { $0.mediaType == .audio }
         
+        self.session.startRunning()
+        
         // Attach the video encoders to the video reader
         if videoReaders.count > 0 {
             var encoderSettings = H264Settings()
             
             let cameras = self.devices.filter { $0.source.type == .video }
             if let camera = cameras.first as? Camera {
+                self.session.base.beginConfiguration()
+                camera.frameRate          = 30
                 encoderSettings.frameRate = Float(camera.frameRate)
+                self.session.base.commitConfiguration()
             }
             
             self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
