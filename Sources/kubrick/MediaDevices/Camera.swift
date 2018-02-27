@@ -37,17 +37,24 @@ public enum CameraOrientation {
     
     extension Camera {
         func update(frameRate: Float64) {
-            print("=========", #function, "Updating frame rate", frameRate)
             if let src = self.source as? AVCaptureDevice {
                 do {
                     try src.lockForConfiguration()
-                    let fps                         = CMTimeMake(1, Int32(frameRate))
-                    src.activeVideoMinFrameDuration = fps
-                    src.activeVideoMaxFrameDuration = fps
+                    src.formats.forEach({ (format) in
+                        for fpsRange in format.videoSupportedFrameRateRanges {
+                            if fpsRange.maxRate <= frameRate {
+                                let desc = format.formatDescription
+                                let subType = fourCCToString(CMFormatDescriptionGetMediaSubType(desc))
+                                if subType == "2vuy" {
+                                    src.activeFormat = format
+                                    let fps                         = CMTimeMake(1, Int32(frameRate))
+                                    src.activeVideoMinFrameDuration = fps
+                                    src.activeVideoMaxFrameDuration = fps
+                                }
+                            }
+                        }
+                    })
                     src.unlockForConfiguration()
-                    
-                    print(src.activeVideoMaxFrameDuration)
-                    print(src.activeVideoMinFrameDuration)
                 } catch let err {
                     print("Could not configure framerate:", err)
                 }

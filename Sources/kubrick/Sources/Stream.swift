@@ -51,7 +51,7 @@ public class Stream: StreamProtocol {
         
         let videoReaders = self.readers.filter { $0.mediaType == .video }
         let audioReaders = self.readers.filter { $0.mediaType == .audio }
-                
+        
         // Attach the video encoders to the video reader
         if videoReaders.count > 0 {
             var encoderSettings = H264Settings()
