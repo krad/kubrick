@@ -53,9 +53,9 @@ public enum CameraOrientation {
                         case .portrait:
                             conn.videoOrientation = .portrait
                         case .landscapeRight :
-                            conn.videoOrientation = .landscapeLeft
-                        case .landscapeLeft:
                             conn.videoOrientation = .landscapeRight
+                        case .landscapeLeft:
+                            conn.videoOrientation = .landscapeLeft
                         case .upsideDown:
                             conn.videoOrientation = .portraitUpsideDown
                         default:
