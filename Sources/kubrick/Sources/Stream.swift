@@ -29,6 +29,9 @@ public class Stream: StreamProtocol {
         self.session = CaptureSession()
         self.devices = devices
         
+        // Create a muxer sink and wire it into our encoders
+        self.muxSink = MuxerSink()
+        
         // Create readers for each of the devices
         self.readers = self.devices.flatMap {
             if $0.source.type == .audio { return AudioReader() }
@@ -36,17 +39,22 @@ public class Stream: StreamProtocol {
             return nil
         }
         
+        // Add the devices as inputs to the session
+        self.devices.forEach { (device) in self.session.addInput(device) }
+
+        // Attach each of the readers to their appropriate devices
+        for var device in self.devices {
+            let rdrs = self.readers.filter { $0.mediaType == device.source.type }
+            try rdrs.forEach { try device.set(reader: $0) }
+        }
+        
         let videoReaders = self.readers.filter { $0.mediaType == .video }
         let audioReaders = self.readers.filter { $0.mediaType == .audio }
         
-        // Create a muxer sink and wire it into our encoders
-        self.muxSink = MuxerSink()
-
         // Attach the video encoders to the video reader
         if videoReaders.count > 0 {
             self.videoEncoderSink = try H264EncoderSink()
             for var reader in videoReaders {
-                print("Appending video encoder to video reader", reader)
                 reader.sinks.append(self.videoEncoderSink!)
                 muxSink.streamType.insert(.video)
             }
@@ -63,15 +71,6 @@ public class Stream: StreamProtocol {
         
         self.videoEncoderSink?.nextSinks.append(self.muxSink)
         self.audioEncoderSink?.nextSinks.append(self.muxSink)
-        
-        // Add the devices as inputs to the session
-        self.devices.forEach { (device) in self.session.addInput(device) }
-
-        // Attach each of the readers to their appropriate devices
-        for var device in self.devices {
-            let rdrs = self.readers.filter { $0.mediaType == device.source.type }
-            try rdrs.forEach { try device.set(reader: $0) }
-        }
         
         return
     }

@@ -48,18 +48,26 @@ class StreamTests: XCTestCase {
         
         let stream   = try? Stream(devices: [video!, audio!])
         let endpoint = MockEndpoint()
-        stream?.session.startRunning()
-        
+        XCTAssertNotNil(stream)
+
+        XCTAssertNil(stream?.muxSink.videoFormat)
+        XCTAssertNil(stream?.muxSink.audioFormat)
+
+        XCTAssertEqual(1, stream?.videoEncoderSink?.nextSinks.count)
+        XCTAssertEqual(1, stream?.audioEncoderSink?.nextSinks.count)
         XCTAssertEqual(0, endpoint.samples.count)
         
+        stream?.session.startRunning()
         stream?.set(endpoint: endpoint)
         
         let e = self.expectation(description: "Ensure we get data to the endpoint")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { e.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { e.fulfill() }
         self.wait(for: [e], timeout: 3)
-        
+
+        XCTAssertNotNil(stream?.muxSink.videoFormat)
+        XCTAssertNotNil(stream?.muxSink.audioFormat)
+
         XCTAssert(endpoint.samples.count > 1)
-        print(endpoint.samples)
         
     }
     #endif
