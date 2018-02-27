@@ -74,7 +74,7 @@ internal class H264Encoder: VideoEncoder {
             
             var duration = sample.duration.time
             if duration.value <= 0 {
-                duration = CMTimeMake(1, Int32(self.settings.frameRate))
+                duration = CMTimeMake(1*1000, Int32(self.settings.frameRate)*1000)
             }
             
             VTCompressionSessionEncodeFrame(self.session!,
