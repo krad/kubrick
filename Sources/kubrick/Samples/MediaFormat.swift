@@ -48,6 +48,14 @@ public struct VideoFormatDescription: MediaSpecificFormatDescription {
     var params: [[UInt8]]
 }
 
+public protocol FrameRateRange {
+    var maxDuration: Rational { get }
+    var maxRate: Float64 { get }
+    var minDuration: Rational { get }
+    var minRate: Float64 { get }
+}
+
+
 extension VideoFormatDescription: Equatable {
     public static func ==(lhs: VideoFormatDescription, rhs: VideoFormatDescription) -> Bool {
         if lhs.dimensions == rhs.dimensions {
@@ -79,6 +87,30 @@ public enum SampleSubType: String {
 
 #if os(macOS) || os(iOS)
     import CoreMedia
+    import AVFoundation
+    
+    //extension CMFormatDescription: MediaSpecificFormatDescription { }
+    
+    extension AVFrameRateRange: FrameRateRange {
+        public var maxDuration: Rational {
+            return Rational(numerator: self.maxFrameDuration.value,
+                            denominator: self.maxFrameDuration.timescale)
+        }
+        
+        public var maxRate: Float64 {
+            return self.maxFrameRate
+        }
+        
+        public var minDuration: Rational {
+            return Rational(numerator: self.minFrameDuration.value,
+                            denominator: self.minFrameDuration.timescale)
+        }
+        
+        public var minRate: Float64 {
+            return self.minFrameRate
+        }
+        
+    }
     
     extension AudioFormatDescription {
         init(_ streamDesc: AudioStreamBasicDescription) {

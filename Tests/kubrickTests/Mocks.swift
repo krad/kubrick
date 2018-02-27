@@ -73,6 +73,7 @@ class MockSink<T>: Sink<T> {
 #endif
 
 class MockMicrophoneSource: Source {
+    
     var uniqueID: String        = UUID().uuidString
     var isConnected: Bool       = true
     var position: Position      = .unspecified
@@ -80,4 +81,5 @@ class MockMicrophoneSource: Source {
     var localizedName: String   = "Fake Microphone"
     var manufacturer: String    = "The Test Harness Company"
     var type: MediaType?        = .audio
+    var deviceFormats: [DeviceFormat] = []
 }
