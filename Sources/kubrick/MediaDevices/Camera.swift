@@ -9,12 +9,23 @@ public class Camera: MediaDevice {
         didSet { self.update(frameRate: self.frameRate) }
     }
     
+    public var orientation: CameraOrientation = .unknown {
+        didSet { self.update(orientation: self.orientation) }
+    }
+    
     public init(_ source: Source) {
         self.source = source
     }
     
 }
 
+public enum CameraOrientation {
+    case portrait
+    case landscapeLeft
+    case landscapeRight
+    case upsideDown
+    case unknown
+}
 
 #if os(macOS) || os(iOS)
     import AVFoundation
@@ -28,16 +39,27 @@ public class Camera: MediaDevice {
                     src.activeVideoMinFrameDuration = fps
                     src.activeVideoMaxFrameDuration = fps
                     src.unlockForConfiguration()
-
-//                    #if os(macOS)
-//                    if let o = self.output as? AVCaptureVideoDataOutput {
-//                        o.connections.first?.videoMinFrameDuration = fps
-//                        o.connections.first?.videoMaxFrameDuration = fps
-//                    }
-//                    #endif
-                    
                 } catch let err {
                     print("Could not configure framerate:", err)
+                }
+            }
+        }
+        
+        func update(orientation: CameraOrientation) {
+            if let out = self.output as? AVCaptureVideoDataOutput {
+                if let conn = out.connection(with: .video) {
+                    switch orientation {
+                    case .portrait:
+                        conn.videoOrientation = .portrait
+                    case .landscapeRight :
+                        conn.videoOrientation = .landscapeLeft
+                    case .landscapeLeft:
+                        conn.videoOrientation = .landscapeRight
+                    case .upsideDown:
+                        conn.videoOrientation = .portraitUpsideDown
+                    default:
+                        conn.videoOrientation = .portrait
+                    }
                 }
             }
         }

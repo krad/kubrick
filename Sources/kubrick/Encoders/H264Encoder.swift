@@ -6,7 +6,7 @@ internal class H264Encoder: VideoEncoder {
     
     fileprivate var settings: H264Settings
         
-    init    (_ settings: H264Settings) throws {
+    init(_ settings: H264Settings) throws {
         self.settings = settings
         try self.configure()
     }
@@ -73,10 +73,9 @@ internal class H264Encoder: VideoEncoder {
         if let pixelBuffer = CMSampleBufferGetImageBuffer(cmsample) {
             
             var duration = sample.duration.time
-            print(duration)
-//            if duration.value <= 0 {
-//                duration = CMTimeMake(1, Int32(self.settings.frameRate))
-//            }
+            if duration.value <= 0 {
+                duration = CMTimeMake(1, Int32(self.settings.frameRate))
+            }
             
             VTCompressionSessionEncodeFrame(self.session!,
                                             pixelBuffer,
