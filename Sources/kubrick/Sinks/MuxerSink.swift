@@ -23,8 +23,8 @@ public class MuxerSink: Sink<Sample>, NextSinkProtocol {
                                            data: input.bytes)
             self.send(packet)
         case .video:
-            var packet = VideoSamplePacket(duration: input.duration.numerator,
-                                           timescale: UInt32(input.duration.denominator),
+            var packet = VideoSamplePacket(duration: input.pts.numerator,
+                                           timescale: UInt32(input.pts.denominator),
                                            data: input.bytes)
             
             packet.isSync                    = input.isSync
