@@ -70,7 +70,7 @@ public enum CameraOrientation {
         }
         
         #if os(iOS)
-        func set(orientation: UIDeviceOrientation) {
+        public func set(orientation: UIDeviceOrientation) {
             switch orientation {
                 case .landscapeLeft:
                     self.update(orientation: .landscapeRight)
