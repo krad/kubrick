@@ -88,4 +88,23 @@ public enum CameraOrientation {
         
     }
     
+    extension UIDeviceOrientation {
+        
+        var avOrientation: AVCaptureVideoOrientation {
+            switch self {
+            case .landscapeRight:
+                return .landscapeRight
+            case .landscapeLeft:
+                return .landscapeLeft
+            case .portrait:
+                return .portrait
+            case .portraitUpsideDown:
+                return .portraitUpsideDown
+            default:
+                return .portrait
+            }
+        }
+        
+    }
+    
 #endif
