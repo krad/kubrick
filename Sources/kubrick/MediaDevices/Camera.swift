@@ -29,6 +29,9 @@ public enum CameraOrientation {
 
 #if os(macOS) || os(iOS)
     import AVFoundation
+    #if os(iOS)
+        import UIKit
+    #endif
     
     extension Camera {
         func update(frameRate: Float64) {
@@ -65,6 +68,24 @@ public enum CameraOrientation {
                 }
             }
         }
+        
+        #if os(iOS)
+        func set(orientation: UIDeviceOrientation) {
+            switch orientation {
+                case .landscapeLeft:
+                    self.update(orientation: .landscapeRight)
+                case .landscapeRight:
+                    self.update(orientation: .landscapeLeft)
+                case .portrait:
+                    self.update(orientation: .portrait)
+                case .portraitUpsideDown:
+                    self.update(orientation: .upsideDown)
+                default:
+                    self.update(orientation: .portrait)
+            }
+        }
+        #endif
+        
     }
     
 #endif
