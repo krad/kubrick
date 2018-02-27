@@ -20,6 +20,7 @@ class AudioSinkTests: XCTestCase {
         var mic         = Microphone(audioSrc!)
         let audioReader = AudioReader()
         let aacSink     = AACEncoderSink()
+        aacSink.running = true
 
         audioReader.sinks.append(aacSink)
 

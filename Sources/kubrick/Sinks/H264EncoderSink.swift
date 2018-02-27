@@ -7,6 +7,7 @@ public class H264EncoderSink: Sink<Sample>, NextSinkProtocol {
     public typealias OutputType = Sample
     public var nextSinks: [Sink<Sample>] = []
 
+    public var running: Bool = false
     public var encoder: VideoEncoder?
     
     public init(settings: H264Settings = H264Settings()) throws {
@@ -15,6 +16,7 @@ public class H264EncoderSink: Sink<Sample>, NextSinkProtocol {
     
     #if os(macOS) || os(iOS)
     public override func push(input: Sample) {
+        guard self.running else { return }
         self.encoder?.encode(input, onComplete: { (sample) in
             for sink in self.nextSinks {
                 sink.push(input: sample)

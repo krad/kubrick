@@ -23,6 +23,7 @@ class VideoSinkTests: XCTestCase {
         var encoderSink: H264EncoderSink?
         XCTAssertNoThrow(encoderSink = try H264EncoderSink(settings: settings))
         XCTAssertNotNil(encoderSink)
+        encoderSink?.running = true
         reader.sinks.append(encoderSink!)
 
         let out = MockSink<Sample>()

@@ -25,9 +25,11 @@ class MuxerSinkTests: XCTestCase {
         XCTAssertNoThrow(try mic.set(reader: audio))
 
         let h264Sink = try! H264EncoderSink()
+        h264Sink.running = true
         video.sinks.append(h264Sink)
         
         let aacSink = AACEncoderSink()
+        aacSink.running = true
         audio.sinks.append(aacSink)
         
         let muxSink = MuxerSink()

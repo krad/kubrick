@@ -54,6 +54,24 @@ public class Stream: StreamProtocol {
         self.videoEncoderSink?.nextSinks.append(self.muxSink)
         self.audioEncoderSink?.nextSinks.append(self.muxSink)
         
+        // Attach the video encoders to the video reader
+        if let videoEncoder = self.videoEncoderSink {
+            for var reader in videoReaders {
+                print("Appending video encoder to video reader", reader)
+                reader.sinks.append(videoEncoder)
+                muxSink.streamType.insert(.video)
+            }
+        }
+        
+        // Attach the audio encoder to the audio reader
+        if let audioEncoder = self.audioEncoderSink {
+            for var reader in audioReaders {
+                print("Appending audio encoder to audio reader", reader)
+                reader.sinks.append(audioEncoder)
+                muxSink.streamType.insert(.audio)
+            }
+        }
+        
         // Add the devices as inputs to the session
         self.devices.forEach { (device) in self.session.addInput(device) }
         
@@ -66,23 +84,9 @@ public class Stream: StreamProtocol {
         let sink          = EndpointSink(endpoint)
         self.endPointSink = sink
         
-        // Attach the video encoders to the video reader
-        if let videoEncoder = self.videoEncoderSink {
-            let videoReaders = self.readers.filter { $0.mediaType == .video }
-            for var reader in videoReaders {
-                print("Appending video encoder to video reader", reader)
-                reader.sinks.append(videoEncoder)
-            }
-        }
-        
-        // Attach the audio encoder to the audio reader
-        if let audioEncoder = self.audioEncoderSink {
-            let audioReaders = self.readers.filter { $0.mediaType == .audio }
-            for var reader in audioReaders {
-                print("Appending audio encoder to audio reader", reader)
-                reader.sinks.append(audioEncoder)
-            }
-        }
+        /// Start actually encoding video for sending
+        self.videoEncoderSink?.running = true
+        self.audioEncoderSink?.running = true
         
         // Get the stream type from the mux sink
         // We appending the mux sinks to the av encoders earlier so by now they should have samples
