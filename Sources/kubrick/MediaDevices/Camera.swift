@@ -39,8 +39,7 @@ public enum CameraOrientation {
         func update(frameRate: Float64) {
             if let src = self.source as? AVCaptureDevice {
                 do {
-                    try src.lockForConfiguration()
-                    src.formats.forEach({ (format) in
+                    try src.formats.forEach({ (format) in
                         print("=================")
                         print(format)
                         for fpsRange in format.videoSupportedFrameRateRanges {
@@ -49,6 +48,7 @@ public enum CameraOrientation {
                                 let desc = format.formatDescription
                                 let subType = fourCCToString(CMFormatDescriptionGetMediaSubType(desc))
                                 if subType == "2vuy" || subType == "420f" {
+                                    try src.lockForConfiguration()
                                     print("==== Got it")
                                     src.activeFormat = format
                                     let fps                         = CMTimeMake(1, Int32(frameRate))
