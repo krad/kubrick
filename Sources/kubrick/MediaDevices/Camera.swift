@@ -88,9 +88,9 @@ public enum CameraOrientation {
         
     }
     
+    #if os(iOS)
     extension UIInterfaceOrientation {
-        
-        var avOrientation: AVCaptureVideoOrientation {
+        public var avOrientation: AVCaptureVideoOrientation {
             switch self {
             case .landscapeRight:
                 return .landscapeRight
@@ -104,7 +104,7 @@ public enum CameraOrientation {
                 return .portrait
             }
         }
-        
     }
+    #endif
     
 #endif
