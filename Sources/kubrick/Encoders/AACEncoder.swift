@@ -177,7 +177,7 @@ internal class AACEncoder: AudioEncoder {
                                                         nil,
                                                         nil,
                                                         outFormat!,
-                                                        numberOfSamples,
+                                                        1, //numberOfSamples
                                                         duration,
                                                         &packetDescription,
                                                         &newSample)
