@@ -62,6 +62,7 @@ public class Stream: StreamProtocol {
     }
     
     public func set(endpoint: Writeable) {
+        print(#function)
         let sink          = EndpointSink(endpoint)
         self.endPointSink = sink
         
@@ -69,6 +70,7 @@ public class Stream: StreamProtocol {
         if let videoEncoder = self.videoEncoderSink {
             let videoReaders = self.readers.filter { $0.mediaType == .video }
             for var reader in videoReaders {
+                print("Appending video encoder to video reader", reader)
                 reader.sinks.append(videoEncoder)
             }
         }
@@ -77,12 +79,14 @@ public class Stream: StreamProtocol {
         if let audioEncoder = self.audioEncoderSink {
             let audioReaders = self.readers.filter { $0.mediaType == .audio }
             for var reader in audioReaders {
+                print("Appending audio encoder to audio reader", reader)
                 reader.sinks.append(audioEncoder)
             }
         }
         
         // Get the stream type from the mux sink
         // We appending the mux sinks to the av encoders earlier so by now they should have samples
+        print("Sending stream type:", muxSink.streamType)
         let streamTypePacket = StreamTypePacket(streamType: muxSink.streamType)
         self.endPointSink?.push(input: streamTypePacket)
         
@@ -93,7 +97,9 @@ public class Stream: StreamProtocol {
                 let dimensionsPacket = VideoDimensionPacket(width: videoFormat.dimensions.width,
                                                             height: videoFormat.dimensions.height)
 
+                print("Sending video params", paramsPacket)
                 self.endPointSink?.push(input: paramsPacket)
+                print("Sending dimensions", dimensionsPacket)
                 self.endPointSink?.push(input: dimensionsPacket)
             } catch let error {
                 print("Problem configuring video portion of stream:", error)
