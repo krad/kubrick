@@ -41,7 +41,10 @@ public enum CameraOrientation {
                 do {
                     try src.lockForConfiguration()
                     src.formats.forEach({ (format) in
+                        print("=================")
+                        print(format)
                         for fpsRange in format.videoSupportedFrameRateRanges {
+                            print(fpsRange)
                             if fpsRange.maxRate <= frameRate {
                                 let desc = format.formatDescription
                                 let subType = fourCCToString(CMFormatDescriptionGetMediaSubType(desc))
