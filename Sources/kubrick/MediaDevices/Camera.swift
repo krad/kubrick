@@ -29,10 +29,12 @@ public class Camera: MediaDevice {
                     src.activeVideoMaxFrameDuration = fps
                     src.unlockForConfiguration()
 
-                    if let o = self.output as? AVCaptureVideoDataOutput {
-                        o.connections.first?.videoMinFrameDuration = fps
-                        o.connections.first?.videoMaxFrameDuration = fps
-                    }
+//                    #if os(macOS)
+//                    if let o = self.output as? AVCaptureVideoDataOutput {
+//                        o.connections.first?.videoMinFrameDuration = fps
+//                        o.connections.first?.videoMaxFrameDuration = fps
+//                    }
+//                    #endif
                     
                 } catch let err {
                     print("Could not configure framerate:", err)
