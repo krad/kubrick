@@ -5,7 +5,7 @@ public enum SinkError: Error {
 }
 
 /// Sink is a abstract base type for adopting the SinkProtocol
-public class Sink<In>: SinkProtocol {
+open class Sink<In>: SinkProtocol {
     public typealias InputType  = In
     
     open func push(input: In) {
