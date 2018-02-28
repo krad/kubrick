@@ -8,6 +8,8 @@ public enum SinkError: Error {
 open class Sink<In>: SinkProtocol {
     public typealias InputType  = In
     
+    public init() { }
+    
     open func push(input: In) {
         print(#function, "Override the push input in class that inherits from Sink")
     }
