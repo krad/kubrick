@@ -141,7 +141,13 @@ public enum SampleSubType: String {
         init(_ format: CMVideoFormatDescription) {
             let dim         = CMVideoFormatDescriptionGetDimensions(format)
             self.dimensions = VideoDimensions(width: UInt32(dim.width), height: UInt32(dim.height))
-            self.params     = getVideoFormatDescriptionData(format)
+            
+            if fourCCToString(CMFormatDescriptionGetMediaSubType(format)) == "avc1" {
+                self.params = getVideoFormatDescriptionData(format)
+            } else {
+                self.params = []
+            }
+            
         }
     }
     
@@ -190,6 +196,7 @@ public enum SampleSubType: String {
     }
     
     public func getVideoFormatDescriptionData(_ format: CMFormatDescription) -> [[UInt8]] {
+        
         var results: [[UInt8]] = []
         
         var numberOfParamSets: size_t = 0
