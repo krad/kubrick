@@ -44,8 +44,8 @@ extension AudioFormatDescription: Equatable {
 }
 
 public struct VideoFormatDescription: MediaSpecificFormatDescription {
-    var dimensions: VideoDimensions
-    var params: [[UInt8]]
+    public var dimensions: VideoDimensions
+    public var params: [[UInt8]]
 }
 
 public protocol FrameRateRange {
