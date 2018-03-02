@@ -12,6 +12,8 @@ public class ThreadSafeArray<T>: Collection {
                                   autoreleaseFrequency: .inherit,
                                   target: nil)
     
+    public init() { }
+    
     public func append(_ newElement: T) {
         q.async(flags: .barrier) { self.array.append(newElement) }
     }
