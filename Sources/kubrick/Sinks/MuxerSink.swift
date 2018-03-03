@@ -5,9 +5,9 @@ public class MuxerSink: Sink<Sample>, NextSinkProtocol {
     /// Sinks downstream from us types that adopt BinaryEncodable
     public var nextSinks: [Sink<BinaryEncodable>] = []
     
-    internal var videoFormat: VideoFormatDescription?
-    internal var audioFormat: AudioFormatDescription?
-    internal var streamType: StreamType = StreamType()
+    public var videoFormat: VideoFormatDescription?
+    public var audioFormat: AudioFormatDescription?
+    public var streamType: StreamType = StreamType()
     
     public override init() { }
     
