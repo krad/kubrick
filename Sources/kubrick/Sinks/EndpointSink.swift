@@ -5,7 +5,7 @@ public class EndpointSink: Sink<BinaryEncodable> {
 
     var endpoint: Writeable
     
-    init(_ endpoint: Writeable) {
+    public init(_ endpoint: Writeable) {
         self.endpoint = endpoint
     }
     
