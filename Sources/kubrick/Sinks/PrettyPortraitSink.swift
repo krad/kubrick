@@ -1,8 +1,7 @@
 import Foundation
 
 #if os(iOS)
-    #if !(TARGET_IPHONE_SIMULATOR)
-
+    #if !TARGET_IPHONE_SIMULATOR
     import CoreVideo
     import CoreMedia
     import VideoToolbox
@@ -10,12 +9,12 @@ import Foundation
     import Metal
     import MetalPerformanceShaders
     
-    enum PrettyPortraitError: Error {
+    public enum PrettyPortraitError: Error {
         case pipelineSetupFailed
         case shaderNotFound(name: String)
     }
 
-    class PrettyPortrait: Sink<Sample>, NextSinkProtocol {
+    public class PrettyPortrait: Sink<Sample>, NextSinkProtocol {
         
         /// Cache pools for metal textures and cv pixel buffers
         var textureCache: CVMetalTextureCache?
@@ -43,10 +42,10 @@ import Foundation
         var backgroundTexture: MTLTexture?
         var foregroundTextureClip: MTLTexture?
         var foregroundTexture: MTLTexture?
-        var presentedTexture: MTLTexture?
+        public var presentedTexture: MTLTexture?
         
         //// Use this when we need to reconfigure textures
-        var configured: Bool = false
+        public var configured: Bool = false
         
         //// Performance shaders for some of the fancier effects
         let blur: MPSImageGaussianBlur
@@ -74,7 +73,7 @@ import Foundation
         }
         
         
-        init(device: MTLDevice) throws {
+        public init(device: MTLDevice) throws {
             self.device   = device
             
             self.blur     = MPSImageGaussianBlur(device: device, sigma: 55.0)
