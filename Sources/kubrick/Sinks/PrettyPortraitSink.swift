@@ -2,6 +2,7 @@ import Foundation
 
 #if os(iOS)
     import CoreVideo
+    import CoreMedia
     import MetalKit
     import MetalPerformanceShaders
     
