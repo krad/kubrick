@@ -3,7 +3,9 @@ import Foundation
 #if os(iOS)
     import CoreVideo
     import CoreMedia
+    import VideoToolbox
     import MetalKit
+    import Metal
     import MetalPerformanceShaders
     
     enum PrettyPortraitError: Error {
