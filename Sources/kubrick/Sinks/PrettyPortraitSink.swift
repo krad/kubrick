@@ -57,7 +57,7 @@ import Foundation
         var sampleBuilderQ              = DispatchQueue(label: "sample.builder.q")
         
         /// The sinks
-        var nextSinks: [Sink<Sample>]   = []
+        public var nextSinks: [Sink<Sample>]   = []
         
         fileprivate var semaphore = DispatchSemaphore(value: 1)
         
@@ -107,7 +107,7 @@ import Foundation
             super.init()
         }
         
-        override func push(input: Sample) {
+        public override func push(input: Sample) {
             if !self.configured { self.configureTextures(with: input) }
             let sample = input as! CMSampleBuffer
             if let textureA = texture(sampleBuffer: sample, textureCache: textureCache) {
