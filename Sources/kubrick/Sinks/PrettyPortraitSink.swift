@@ -1,6 +1,8 @@
 import Foundation
 
 #if os(iOS)
+    #if !(TARGET_IPHONE_SIMULATOR)
+
     import CoreVideo
     import CoreMedia
     import VideoToolbox
@@ -412,4 +414,5 @@ import Foundation
         }
         pixelBuffers.removeAll()
     }
+    #endif
 #endif
