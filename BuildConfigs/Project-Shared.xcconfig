@@ -142,3 +142,6 @@ SDKROOT = iphoneos
 
 
 WARNING_CFLAGS = -Wall -Wextra -Wundef -Wfloat-equal
+
+SUPPORTED_PLATFORMS = macosx iphoneos appletvos 
+
