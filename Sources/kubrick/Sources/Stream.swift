@@ -3,6 +3,7 @@ import grip
 
 #if os(iOS) && !TARGET_IPHONE_SIMULATOR
     import Metal
+    import UIKit
 #endif
 
 public protocol StreamProtocol {
@@ -125,9 +126,6 @@ public class Stream: StreamProtocol {
         self.videoEncoderSink?.running = true
         self.audioEncoderSink?.running = true
         
-        print(self.readers.first?.sinks)
-        print(self.prettyPortrait.nextSinks)
-        
         // Get the stream type from the mux sink
         // We appending the mux sinks to the av encoders earlier so by now they should have samples
         print("Sending stream type:", muxSink.streamType)
@@ -156,5 +154,17 @@ public class Stream: StreamProtocol {
             self.muxSink.nextSinks.append(sink)
         }
     }
+
+    #if os(iOS)
+    public func set(orientation: UIDeviceOrientation) {
+        for device in self.devices {
+            if device.source.type == .video {
+                if let cam = device as? Camera {
+                    cam.set(orientation: orientation)
+                }
+            }
+        }
+    }
+    #endif
 
 }

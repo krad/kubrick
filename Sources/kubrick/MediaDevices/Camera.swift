@@ -86,6 +86,21 @@ public enum CameraOrientation {
                     self.orientation = .portrait
             }
         }
+        
+        public func set(orientation: UIDeviceOrientation) {
+            switch orientation {
+            case .landscapeLeft:
+                self.orientation = .landscapeRight
+            case .landscapeRight:
+                self.orientation = .landscapeLeft
+            case .portrait:
+                self.orientation = .portrait
+            case .portraitUpsideDown:
+                self.orientation = .portrait
+            default:
+                self.orientation = .portrait
+            }
+        }
         #endif
         
     }
