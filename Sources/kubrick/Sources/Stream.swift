@@ -1,6 +1,10 @@
 import Dispatch
 import grip
 
+#if os(iOS) && !TARGET_IPHONE_SIMULATOR
+    import Metal
+#endif
+
 public protocol StreamProtocol {
     var session: CaptureSession { get }
     var devices: [MediaDevice] { get }
@@ -10,6 +14,7 @@ public protocol StreamProtocol {
 
 public enum StreamError: Error {
     case noDevicesSelected
+    case gpuUnavailable
 }
 
 public class Stream: StreamProtocol {
@@ -23,6 +28,10 @@ public class Stream: StreamProtocol {
     internal var muxSink: MuxerSink
     internal var endPointSink: EndpointSink?
     
+    #if os(iOS) && !TARGET_IPHONE_SIMULATOR
+    internal var prettyPortrait: PrettyPortrait
+    #endif
+    
     public init(devices: [MediaDevice]) throws {
         guard devices.count > 0 else { throw StreamError.noDevicesSelected }
         
@@ -32,6 +41,14 @@ public class Stream: StreamProtocol {
         
         // Create a muxer sink and wire it into our encoders
         self.muxSink = MuxerSink()
+        
+        #if os(iOS) && !TARGET_IPHONE_SIMULATOR
+            if let gpu = MTLCreateSystemDefaultDevice() {
+                self.prettyPortrait = try PrettyPortrait(device: gpu)
+            } else {
+                throw StreamError.gpuUnavailable
+            }
+        #endif
         
         // Create readers for each of the devices
         self.readers = self.devices.flatMap {
@@ -61,11 +78,18 @@ public class Stream: StreamProtocol {
                 encoderSettings.frameRate = Float(camera.frameRate)
             }
             
-            self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
-            for var reader in videoReaders {
-                reader.sinks.append(self.videoEncoderSink!)
+            #if os(iOS)
+                for var reader in videoReaders { reader.sinks.append(self.prettyPortrait) }
+                self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
+                self.prettyPortrait.nextSinks.append(self.videoEncoderSink!)
                 muxSink.streamType.insert(.video)
-            }
+            #else
+                self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
+                for var reader in videoReaders {
+                    reader.sinks.append(self.videoEncoderSink!)
+                    muxSink.streamType.insert(.video)
+                }
+            #endif
         }
         
         // Attach the audio encoder to the audio reader
