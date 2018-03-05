@@ -125,6 +125,9 @@ public class Stream: StreamProtocol {
         self.videoEncoderSink?.running = true
         self.audioEncoderSink?.running = true
         
+        print(self.readers.first?.sinks)
+        print(self.prettyPortrait.nextSinks)
+        
         // Get the stream type from the mux sink
         // We appending the mux sinks to the av encoders earlier so by now they should have samples
         print("Sending stream type:", muxSink.streamType)
