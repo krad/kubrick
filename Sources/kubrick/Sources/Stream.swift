@@ -79,8 +79,16 @@ public class Stream: StreamProtocol {
             }
             
             #if os(iOS)
-                for var reader in videoReaders { reader.sinks.append(self.prettyPortrait) }
+                print("== Pretty Portrait compile time config")
+                for var reader in videoReaders {
+                    print("== Appending pretty portrait sink to reader")
+                    reader.sinks.append(self.prettyPortrait)
+                }
+                
+                print("== Creating h264 sink")
                 self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
+                
+                print("== Setting h264 encoder downstream from pretty portrait")
                 self.prettyPortrait.nextSinks.append(self.videoEncoderSink!)
                 muxSink.streamType.insert(.video)
             #else
