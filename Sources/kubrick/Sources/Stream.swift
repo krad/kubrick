@@ -80,18 +80,11 @@ public class Stream: StreamProtocol {
             }
             
             #if os(iOS)
-                print("== Pretty Portrait compile time config")
                 for var reader in videoReaders {
-                    print("== Appending pretty portrait sink to reader")
-                    print(reader, reader.sinks)
-                    print(prettyPortrait)
                     reader.sinks.append(self.prettyPortrait)
                 }
                 
-                print("== Creating h264 sink")
                 self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
-                
-                print("== Setting h264 encoder downstream from pretty portrait")
                 self.prettyPortrait.nextSinks.append(self.videoEncoderSink!)
                 muxSink.streamType.insert(.video)
             #else
@@ -128,7 +121,6 @@ public class Stream: StreamProtocol {
         
         // Get the stream type from the mux sink
         // We appending the mux sinks to the av encoders earlier so by now they should have samples
-        print("Sending stream type:", muxSink.streamType)
         let streamTypePacket = StreamTypePacket(streamType: muxSink.streamType)
         self.endPointSink?.push(input: streamTypePacket)
 
@@ -140,9 +132,7 @@ public class Stream: StreamProtocol {
                     let dimensionsPacket = VideoDimensionPacket(width: videoFormat.dimensions.width,
                                                                 height: videoFormat.dimensions.height)
                     
-                    print("Sending video params", paramsPacket)
                     self.endPointSink?.push(input: paramsPacket)
-                    print("Sending dimensions", dimensionsPacket)
                     self.endPointSink?.push(input: dimensionsPacket)
                 } catch let error {
                     print("Problem configuring video portion of stream:", error)
