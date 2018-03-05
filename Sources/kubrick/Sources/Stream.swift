@@ -29,7 +29,7 @@ public class Stream: StreamProtocol {
     internal var endPointSink: EndpointSink?
     
     #if os(iOS) && !TARGET_IPHONE_SIMULATOR
-    internal var prettyPortrait: PrettyPortrait
+    public var prettyPortrait: PrettyPortrait
     #endif
     
     public init(devices: [MediaDevice]) throws {
