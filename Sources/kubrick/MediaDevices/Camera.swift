@@ -112,9 +112,9 @@ public enum CameraOrientation {
             public var avOrientation: AVCaptureVideoOrientation {
                 switch self {
                 case .landscapeRight:
-                    return .landscapeRight
-                case .landscapeLeft:
                     return .landscapeLeft
+                case .landscapeLeft:
+                    return .landscapeRight
                 case .portrait:
                     return .portrait
                 case .portraitUpsideDown:
