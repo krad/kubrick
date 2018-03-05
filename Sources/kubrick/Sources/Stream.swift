@@ -82,6 +82,8 @@ public class Stream: StreamProtocol {
                 print("== Pretty Portrait compile time config")
                 for var reader in videoReaders {
                     print("== Appending pretty portrait sink to reader")
+                    print(reader, reader.sinks)
+                    print(prettyPortrait)
                     reader.sinks.append(self.prettyPortrait)
                 }
                 
