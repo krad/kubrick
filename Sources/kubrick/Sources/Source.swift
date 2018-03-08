@@ -1,4 +1,4 @@
-public enum Position {
+public enum DevicePosition {
     case unspecified
     case front
     case back
@@ -11,6 +11,7 @@ public enum MediaType {
 
 public protocol Source {
     var uniqueID: String { get }
+    var devicePosition: DevicePosition { get }
     var isConnected: Bool { get }
     var modelID: String { get }
     var localizedName: String { get }
@@ -26,6 +27,17 @@ public protocol DeviceFormat {
 #if os(macOS) || os(iOS)
 import AVFoundation
     extension AVCaptureDevice: Source {
+
+        public var devicePosition: DevicePosition {
+            switch self.position {
+            case .back:
+                return .back
+            case .front:
+                return .front
+            case .unspecified:
+                return .unspecified
+            }
+        }
         
         public var type: MediaType? {
             if self.hasMediaType(.audio) { return .audio }
@@ -36,6 +48,7 @@ import AVFoundation
         public var deviceFormats: [DeviceFormat] {
             return self.formats
         }
+        
     }
     
     extension AVCaptureDevice.Format: DeviceFormat {
