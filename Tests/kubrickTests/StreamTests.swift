@@ -20,9 +20,9 @@ class StreamTests: XCTestCase {
         let src       = MockSource()
         let discovery = AVDeviceDiscoverer(src)
         XCTAssert(discovery.devices.count > 0)
-        XCTAssertNoThrow(try Stream(devices: discovery.devices))
+        XCTAssertNoThrow(try AVStream(devices: discovery.devices))
         
-        let stream = try? Stream(devices: discovery.devices)
+        let stream = try? AVStream(devices: discovery.devices)
         XCTAssertNotNil(stream)
         XCTAssertEqual(stream?.devices.count, discovery.devices.count)
         XCTAssertEqual(stream?.readers.count, discovery.devices.count)
@@ -46,7 +46,7 @@ class StreamTests: XCTestCase {
         XCTAssertNotNil(video)
         XCTAssertNotNil(audio)
         
-        let stream   = try? Stream(devices: [video!, audio!])
+        let stream   = try? AVStream(devices: [video!, audio!])
         let endpoint = MockEndpoint()
         XCTAssertNotNil(stream)
 

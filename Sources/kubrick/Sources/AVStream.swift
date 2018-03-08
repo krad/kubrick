@@ -1,9 +1,12 @@
 import Dispatch
 import grip
 
-#if os(iOS) && !TARGET_IPHONE_SIMULATOR
-    import Metal
+#if os(iOS)
     import UIKit
+#endif
+
+#if (arch(arm) || arch(arm64))
+    import Metal
 #endif
 
 public protocol StreamProtocol {
@@ -18,7 +21,7 @@ public enum StreamError: Error {
     case gpuUnavailable
 }
 
-public class Stream: StreamProtocol {
+public class AVStream: StreamProtocol {
     
     public var session: CaptureSession
     public var devices: [MediaDevice]
