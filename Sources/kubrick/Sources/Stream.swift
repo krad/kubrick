@@ -29,7 +29,7 @@ public class Stream: StreamProtocol {
     internal var muxSink: MuxerSink
     internal var endPointSink: EndpointSink?
     
-    #if os(iOS) && !TARGET_IPHONE_SIMULATOR
+    #if os(iOS) && (arch(arm) || arch(arm64))
     public var prettyPortrait: PrettyPortrait
     #endif
     
@@ -43,7 +43,7 @@ public class Stream: StreamProtocol {
         // Create a muxer sink and wire it into our encoders
         self.muxSink = MuxerSink()
         
-        #if os(iOS) && !TARGET_IPHONE_SIMULATOR
+        #if os(iOS) && (arch(arm) || arch(arm64))
             if let gpu = MTLCreateSystemDefaultDevice() {
                 self.prettyPortrait = try PrettyPortrait(device: gpu)
             } else {
@@ -79,7 +79,7 @@ public class Stream: StreamProtocol {
                 encoderSettings.frameRate = Float(camera.frameRate)
             }
             
-            #if os(iOS)
+            #if os(iOS) && (arch(arm) || arch(arm64))
                 for var reader in videoReaders {
                     reader.sinks.append(self.prettyPortrait)
                 }

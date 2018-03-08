@@ -1,7 +1,7 @@
 import Foundation
 
 #if os(iOS)
-    #if !TARGET_IPHONE_SIMULATOR
+    #if arch(arm) || arch(arm64)
     import CoreVideo
     import CoreMedia
     import VideoToolbox

@@ -8,7 +8,7 @@ class VideoSinkTests: XCTestCase {
         self.continueAfterFailure = false
     }
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || (os(iOS) && (arch(arm) || arch(arm64)))
     func test_that_we_can_capture_and_encode_h264_video() {
         useRealDeviceIO()
         
