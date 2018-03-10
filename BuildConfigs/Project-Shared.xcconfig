@@ -113,6 +113,8 @@ GCC_WARN_UNUSED_VARIABLE = YES
 
 GCC_NO_COMMON_BLOCKS = YES;
 
+CURRENT_PROJECT_VERSION = 1.0.5
+
 // Precompiled Header Uses Files From Build Directory
 // 
 // This setting allows for better control of sharing precompiled prefix header files
