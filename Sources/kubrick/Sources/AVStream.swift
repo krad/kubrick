@@ -55,7 +55,7 @@ public class AVStream: AVStreamProtocol {
             if let gpu = MTLCreateSystemDefaultDevice() {
                 self.prettyPortrait = try PrettyPortrait(device: gpu)
             } else {
-                throw StreamError.gpuUnavailable
+                throw AVStreamError.gpuUnavailable
             }
         #endif
         
