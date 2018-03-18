@@ -35,6 +35,28 @@ class StreamTests: XCTestCase {
         XCTAssertNil(stream?.endPointSink)
     }
     
+    func test_that_we_can_cycle_through_supplied_devices() {
+        let camSrcA    = MockCameraSource("cameraA")
+        let camSrcB    = MockCameraSource("cameraB")
+        let camA       = Camera(camSrcA)
+        let camB       = Camera(camSrcB)
+
+        let stream = try? AVStream(devices: [camA, camB])
+        XCTAssertNotNil(stream)
+        
+        var nextDevice = stream?.cycleDevice(with: .video)
+        XCTAssertNotNil(nextDevice)
+        
+        XCTAssert(camA == nextDevice!)
+        nextDevice = stream?.cycleDevice(with: .video)
+        XCTAssert(camB == nextDevice!)
+        nextDevice = stream?.cycleDevice(with: .video)
+        XCTAssert(camA == nextDevice!)
+        nextDevice = stream?.cycleDevice(with: .video)
+        XCTAssert(camB == nextDevice!)
+
+    }
+    
     #if os(macOS)
     func test_that_we_can_walk_through_a_stream_session() {
         useRealDeviceIO()

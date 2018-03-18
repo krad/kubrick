@@ -18,8 +18,13 @@ public class Camera: MediaDevice {
         self.frameRate  = 30
         self.update(frameRate: self.frameRate)
     }
-    
 }
+
+extension Camera: Equatable { }
+public func ==(lhs: Camera, rhs: Camera) -> Bool {
+    return lhs.source.uniqueID == rhs.source.uniqueID
+}
+
 
 public enum CameraOrientation {
     case portrait

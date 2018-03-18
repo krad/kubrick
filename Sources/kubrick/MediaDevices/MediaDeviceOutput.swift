@@ -1,5 +1,10 @@
 public protocol MediaDeviceOutput {
+    var hashValue: Int { get }
     func set(_ reader: MediaDeviceReader)
+}
+
+func ==(lhs: MediaDeviceOutput, rhs: MediaDeviceOutput) -> Bool {
+    return lhs.hashValue == rhs.hashValue
 }
 
 internal typealias MediaDeviceOutputCreateCallback = (MediaDeviceOutput) -> Void

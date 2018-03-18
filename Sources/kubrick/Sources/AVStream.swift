@@ -14,6 +14,8 @@ public protocol StreamProtocol {
     var devices: [MediaDevice] { get }
     var readers: [MediaDeviceReader] { get }
     func set(endpoint: Writeable)
+    func cycleInput(with mediaType: MediaType)
+    func end()
 }
 
 public enum StreamError: Error {
@@ -146,6 +148,29 @@ public class AVStream: StreamProtocol {
             // Audio / Video data should start streaming over the network from here
             self.muxSink.nextSinks.append(sink)
         }
+    }
+    
+    internal func cycleDevice(with mediaType: MediaType) -> MediaDevice? {
+        let devices = self.devices.filter { $0.source.type == mediaType }
+        
+        if let device = devices.first {
+            if let idx = self.devices.index(where: { $0 == device }) {
+                let oldDevice = self.devices.remove(at: idx)
+                self.devices.append(oldDevice)
+                return oldDevice
+            }
+        }
+    
+        return nil
+    }
+    
+    public func cycleInput(with mediaType: MediaType) {
+        
+    }
+    
+    public func end() {
+        self.audioEncoderSink?.running = false
+        self.videoEncoderSink?.running = false
     }
 
     #if os(iOS)

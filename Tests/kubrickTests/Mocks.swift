@@ -11,10 +11,13 @@ class MockDeviceInput: MediaDeviceInput {
     static func makeInput(device: Source) throws -> MediaDeviceInput {
         return MockDeviceInput()
     }
+    
+    var hashValue: Int = Int(arc4random())
 }
 
 class MockDeviceOutput: MediaDeviceOutput {
     func set(_ reader: MediaDeviceReader) { }
+    var hashValue: Int = Int(arc4random())
 }
 
 var makeInputMock: MakeMediaDeviceInput = { src, onCreate in
@@ -41,11 +44,13 @@ class MockSink<T>: Sink<T> {
 
     
     class MockCameraSource: AVCaptureDevice {
-        override var uniqueID: String { return UUID().uuidString }
+        override var uniqueID: String { return self.fakeModelID }
         override var isConnected: Bool { return true }
         override var position: AVCaptureDevice.Position { return .unspecified }
-        override var modelID: String { return "Fake Cam v2" }
+        override var modelID: String { return self.fakeModelID }
         override var localizedName: String { return "Fake Front Camera" }
+        
+        var fakeModelID: String = ""
         
         override var activeVideoMinFrameDuration: CMTime {
             get { return CMTimeMake(1, 30) }
@@ -61,7 +66,9 @@ class MockSink<T>: Sink<T> {
             return false
         }
         
-        init(_ forceInit: String) { }
+        init(_ forceInit: String) {
+            self.fakeModelID = forceInit
+        }
         
         override func lockForConfiguration() throws { }
         override func unlockForConfiguration() { }
