@@ -47,13 +47,44 @@ class StreamTests: XCTestCase {
         var nextDevice = stream?.cycleDevice(with: .video)
         XCTAssertNotNil(nextDevice)
         
-        XCTAssert(camA == nextDevice!)
-        nextDevice = stream?.cycleDevice(with: .video)
         XCTAssert(camB == nextDevice!)
         nextDevice = stream?.cycleDevice(with: .video)
         XCTAssert(camA == nextDevice!)
         nextDevice = stream?.cycleDevice(with: .video)
         XCTAssert(camB == nextDevice!)
+        nextDevice = stream?.cycleDevice(with: .video)
+        XCTAssert(camA == nextDevice!)
+
+    }
+    
+    func test_that_we_can_cycle_devices_through_a_session() {
+        let camSrcA    = MockCameraSource("cameraA")
+        let camSrcB    = MockCameraSource("cameraB")
+        let camA       = Camera(camSrcA)
+        let camB       = Camera(camSrcB)
+
+        let stream = try? AVStream(devices: [camA, camB])
+        XCTAssertNotNil(stream)
+        
+        XCTAssertNotNil(stream?.currentVideoDevice)
+        XCTAssert(camA == stream!.currentVideoDevice!)
+        XCTAssert(camA.input! == stream!.session.inputs.first!)
+
+        stream?.cycleInput(with: .video)
+        XCTAssert(camB == stream!.currentVideoDevice!)
+        XCTAssert(camB.input! == stream!.session.inputs.first!)
+
+        stream?.cycleInput(with: .video)
+        XCTAssert(camA == stream!.currentVideoDevice!)
+        XCTAssert(camA.input! == stream!.session.inputs.first!)
+
+        stream?.cycleInput(with: .video)
+        XCTAssert(camB == stream!.currentVideoDevice!)
+        XCTAssert(camB.input! == stream!.session.inputs.first!)
+
+        stream?.cycleInput(with: .video)
+        XCTAssert(camA == stream!.currentVideoDevice!)
+        XCTAssert(camA.input! == stream!.session.inputs.first!)
 
     }
     

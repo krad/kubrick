@@ -9,7 +9,7 @@ import grip
     import Metal
 #endif
 
-public protocol StreamProtocol {
+public protocol AVStreamProtocol {
     var session: CaptureSession { get }
     var devices: [MediaDevice] { get }
     var readers: [MediaDeviceReader] { get }
@@ -18,16 +18,19 @@ public protocol StreamProtocol {
     func end()
 }
 
-public enum StreamError: Error {
+public enum AVStreamError: Error {
     case noDevicesSelected
     case gpuUnavailable
 }
 
-public class AVStream: StreamProtocol {
+public class AVStream: AVStreamProtocol {
     
     public var session: CaptureSession
     public var devices: [MediaDevice]
     public var readers: [MediaDeviceReader]
+    
+    public private(set) var currentVideoDevice: MediaDevice?
+    public private(set) var currentAudioDevice: MediaDevice?
     
     internal var videoEncoderSink: H264EncoderSink?
     internal var audioEncoderSink: AACEncoderSink?
@@ -39,7 +42,7 @@ public class AVStream: StreamProtocol {
     #endif
     
     public init(devices: [MediaDevice]) throws {
-        guard devices.count > 0 else { throw StreamError.noDevicesSelected }
+        guard devices.count > 0 else { throw AVStreamError.noDevicesSelected }
         
         // Create a capture session and save the devices the user set
         self.session = CaptureSession()
@@ -64,8 +67,21 @@ public class AVStream: StreamProtocol {
         }
         
         // Add the devices as inputs to the session
-        self.devices.forEach { (device) in self.session.addInput(device) }
-
+        let videoDevices = self.devices.filter { $0.source.type == .video }
+        let audioDevices = self.devices.filter { $0.source.type == .audio }
+        
+        if let camera = videoDevices.first {
+            self.session.addInput(camera)
+            self.currentVideoDevice = camera
+            _ = self.cycleDevice(with: .video) // FIXME: Priming the initial state
+        }
+        
+        if let mic = audioDevices.first {
+            self.session.addInput(mic)
+            self.currentAudioDevice = mic
+            _ = self.cycleDevice(with: .audio) // FIXME: Priming the initial state
+        }
+        
         // Attach each of the readers to their appropriate devices
         for var device in self.devices {
             let rdrs = self.readers.filter { $0.mediaType == device.source.type }
@@ -165,7 +181,21 @@ public class AVStream: StreamProtocol {
     }
     
     public func cycleInput(with mediaType: MediaType) {
+        var old: MediaDevice?
+        switch mediaType {
+        case .video: old = self.currentVideoDevice
+        case .audio: old = self.currentAudioDevice
+        }
         
+        if let oldDevice = old {
+            if let nextDevice = self.cycleDevice(with: mediaType) {
+                self.session.beginConfiguration()
+                self.session.removeInput(oldDevice)
+                self.session.addInput(nextDevice)
+                self.session.commitConfiguration()
+                self.currentVideoDevice = nextDevice
+            }
+        }
     }
     
     public func end() {

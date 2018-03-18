@@ -7,6 +7,10 @@ public protocol Session {
     func startRunning()
     func stopRunning()
     func addInput(_ input: MediaDevice)
+    func removeInput(_ input: MediaDevice)
+    
+    func beginConfiguration()
+    func commitConfiguration()
 }
 
 public protocol BaseSession {
@@ -32,6 +36,14 @@ public class CaptureSession: Session {
     
     public func stopRunning() {
         self.base.stopRunning()
+    }
+    
+    public func beginConfiguration() {
+        self.base.beginConfiguration()
+    }
+    
+    public func commitConfiguration() {
+        self.base.commitConfiguration()
     }
     
     public func addInput(_ input: MediaDevice) {
