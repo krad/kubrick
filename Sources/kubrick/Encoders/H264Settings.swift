@@ -7,9 +7,9 @@ public struct H264Settings {
     var height: Int
     
     public init(profile: H264ProfileLevel = .h264Baseline_3_0,
-                frameRate: Float = 25.0,
-                width: Int = 480,
-                height: Int = 270)
+                frameRate: Float = 30.0,
+                width: Int = 400,
+                height: Int = 224)
     {
         self.profile    = profile
         self.frameRate  = frameRate
