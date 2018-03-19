@@ -5,6 +5,9 @@ class MockSource: MediaSource {
     func sources() -> [Source] {
         return [MockCameraSource(""), MockMicrophoneSource()]
     }
+    func sources(_ scope: MediaSourceScope) -> [Source] {
+        return self.sources()
+    }
 }
 
 class MockDeviceInput: MediaDeviceInput {
