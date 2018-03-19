@@ -11,6 +11,7 @@ public protocol SourceDiscoverer {
 public protocol MediaSource {
     func sources() -> [Source]
     func devices() -> [MediaDevice]
+    func devices(_ scope: MediaSourceScope) -> [MediaDevice]
     func sources(_ scope: MediaSourceScope) -> [Source]
 }
 
@@ -31,6 +32,9 @@ public struct AVDeviceDiscoverer: SourceDiscoverer {
     public var sources: [Source] { return mediaSource.sources() }
     public var devices: [MediaDevice] { return mediaSource.devices() }
     
+    public func devices(scoped: MediaSourceScope) -> [MediaDevice] {
+        return mediaSource.devices(scoped)
+    }
 }
 
 public struct SystemMediaSource {
@@ -39,7 +43,11 @@ public struct SystemMediaSource {
 
 extension MediaSource {
     public func devices() -> [MediaDevice] {
-        return self.sources().flatMap {
+        return self.devices(.all)
+    }
+    
+    public func devices(_ scope: MediaSourceScope) -> [MediaDevice] {
+        return self.sources(scope).flatMap {
             switch $0.type {
             case .video?: return Camera($0)
             case .audio?: return Microphone($0)
