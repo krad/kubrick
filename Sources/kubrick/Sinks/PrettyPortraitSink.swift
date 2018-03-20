@@ -109,7 +109,6 @@ import Foundation
         
         public override func push(input: Sample) {
             if !self.configured { self.configureTextures(with: input) }
-            print(input)
             let sample = input as! CMSampleBuffer
             if let textureA = texture(sampleBuffer: sample, textureCache: textureCache) {
                 if let textureB = texture(sampleBuffer: sample, textureCache: textureCache) {
