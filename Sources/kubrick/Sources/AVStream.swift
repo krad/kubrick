@@ -12,7 +12,6 @@ import grip
 public protocol AVStreamProtocol {
     var session: CaptureSession { get }
     var devices: [MediaDevice] { get }
-    var readers: [MediaDeviceReader] { get }
     func set(endpoint: Writeable)
     func cycleInput(with mediaType: MediaType)
     func end()
@@ -27,7 +26,6 @@ public class AVStream: AVStreamProtocol {
     
     public var session: CaptureSession
     public var devices: [MediaDevice]
-    public var readers: [MediaDeviceReader]
     
     public private(set) var currentVideoDevice: MediaDevice?
     public private(set) var currentAudioDevice: MediaDevice?
@@ -60,7 +58,7 @@ public class AVStream: AVStreamProtocol {
         #endif
         
         // Create readers for each of the devices
-        self.readers = self.devices.flatMap {
+        let readers: [MediaDeviceReader] = self.devices.flatMap {
             if $0.source.type == .audio { return AudioReader() }
             if $0.source.type == .video { return VideoReader() }
             return nil
@@ -84,12 +82,12 @@ public class AVStream: AVStreamProtocol {
         
         // Attach each of the readers to their appropriate devices
         for var device in self.devices {
-            let rdrs = self.readers.filter { $0.mediaType == device.source.type }
+            let rdrs = readers.filter { $0.mediaType == device.source.type }
             try rdrs.forEach { try device.set(reader: $0) }
         }
         
-        let videoReaders = self.readers.filter { $0.mediaType == .video }
-        let audioReaders = self.readers.filter { $0.mediaType == .audio }
+        let videoReaders = readers.filter { $0.mediaType == .video }
+        let audioReaders = readers.filter { $0.mediaType == .audio }
         
         // Attach the video encoders to the video reader
         if videoReaders.count > 0 {

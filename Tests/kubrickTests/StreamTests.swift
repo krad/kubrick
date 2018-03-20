@@ -25,7 +25,6 @@ class StreamTests: XCTestCase {
         let stream = try? AVStream(devices: discovery.devices)
         XCTAssertNotNil(stream)
         XCTAssertEqual(stream?.devices.count, discovery.devices.count)
-        XCTAssertEqual(stream?.readers.count, discovery.devices.count)
         
         XCTAssertNotNil(stream?.videoEncoderSink)
         XCTAssertNotNil(stream?.audioEncoderSink)

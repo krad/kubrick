@@ -57,6 +57,8 @@ public class CaptureSession: Session {
         inputBuilder.createOutput {
             self.base.xaddOutput($0)
             self.outputs.append($0)
+            
+            if let reader = input.reader { $0.set(reader) }
         }
     }
     
