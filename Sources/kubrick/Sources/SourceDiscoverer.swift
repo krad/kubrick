@@ -62,6 +62,10 @@ extension MediaSource {
         public func sources() -> [Source] {
             return AVCaptureDevice.devices()
         }
+        
+        public func sources(_ scope: MediaSourceScope) -> [Source] {
+            return self.sources()
+        }
     }
 #endif
 

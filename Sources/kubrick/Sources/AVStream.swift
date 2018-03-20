@@ -191,7 +191,12 @@ public class AVStream: AVStreamProtocol {
                 self.session.removeInput(oldDevice)
                 self.session.addInput(nextDevice)
                 self.session.commitConfiguration()
+                
                 self.currentVideoDevice = nextDevice
+                
+                if let nd = nextDevice as? Camera, let od = oldDevice as? Camera {
+                    nd.orientation = od.orientation
+                }
             }
         }
     }
