@@ -72,6 +72,8 @@ internal class H264Encoder: VideoEncoder {
         let cmsample = sample as! CMSampleBuffer
         if let pixelBuffer = CMSampleBufferGetImageBuffer(cmsample) {
             
+            print(sample.pts.time, Float(sample.pts.denominator)/self.settings.frameRate)
+            
             var duration = sample.duration.time
             if duration.value <= 0 {
                 duration = CMTimeMake(1*1000, Int32(self.settings.frameRate)*1000)
