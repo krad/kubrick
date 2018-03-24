@@ -59,12 +59,28 @@ extension MediaSource {
 
 #if os(macOS)
     extension SystemMediaSource: MediaSource {
+        
         public func sources() -> [Source] {
-            return AVCaptureDevice.devices()
+            let srcs: [[Source]] = [AVCaptureDevice.devices(), self.displays()]
+            return srcs.flatMap { $0 }
         }
         
         public func sources(_ scope: MediaSourceScope) -> [Source] {
             return self.sources()
+        }
+        
+        internal func displayIDs() -> [CGDirectDisplayID] {
+            // If you have more than 10 screens, please send me a pic of your setup.
+            let maxDisplays          = 10
+            var displays             = [CGDirectDisplayID](repeating: 0, count: maxDisplays)
+            var displayCount: UInt32 = 0
+            
+            CGGetOnlineDisplayList(UInt32(maxDisplays), &displays, &displayCount)
+            return Array(displays[0..<Int(displayCount)])
+        }
+        
+        public func displays() -> [DisplaySource] {
+            return self.displayIDs().flatMap { DisplaySource($0) }
         }
     }
 #endif
