@@ -72,12 +72,9 @@ internal class H264Encoder: VideoEncoder {
         let cmsample = sample as! CMSampleBuffer
         if let pixelBuffer = CMSampleBufferGetImageBuffer(cmsample) {
             
-            let rate = Float(sample.pts.denominator)/self.settings.frameRate
-            print(sample.pts.time, rate)
-            
             var duration = sample.duration.time
             if duration.value <= 0 {
-                duration = CMTimeMake(1*1000, Int32(self.settings.frameRate)*1000)
+                duration = CMTimeMakeWithSeconds(Float64(1.0/self.settings.frameRate), 1000)
             }
             
             VTCompressionSessionEncodeFrame(self.session!,
