@@ -6,6 +6,10 @@ public protocol MediaDeviceInput {
 internal typealias MediaDeviceInputCreateCallback  = (MediaDeviceInput) -> Void
 internal typealias MakeMediaDeviceInput = (Source, MediaDeviceInputCreateCallback) throws -> MediaDeviceInput
 
+public enum MediaDeviceInputError: Error {
+    case couldNotCreateInput
+}
+
 func ==(lhs: MediaDeviceInput, rhs: MediaDeviceInput) -> Bool {
     return lhs.hashValue == rhs.hashValue
 }
@@ -28,7 +32,16 @@ func ==(lhs: MediaDeviceInput, rhs: MediaDeviceInput) -> Bool {
     
     extension AVCaptureInput: MediaDeviceInput {
         static public func makeInput(device: Source) throws -> MediaDeviceInput {
-            return try AVCaptureDeviceInput(device: device as! AVCaptureDevice)
+            if let dev = device as? AVCaptureDevice {
+                return try AVCaptureDeviceInput(device: dev)
+            }
+            
+            
+            if let dev = device as? DisplaySource {
+                return AVCaptureScreenInput(displayID: dev.displayID)
+            }
+            
+            throw MediaDeviceInputError.couldNotCreateInput
         }
     }
     

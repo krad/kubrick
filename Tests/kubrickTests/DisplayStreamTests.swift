@@ -9,7 +9,10 @@ class DisplayStreamTests: XCTestCase {
         let display = subject.devices.last
         XCTAssertEqual(display?.source.localizedName, "Color LCD")
         
-        
+        let session = CaptureSession()
+        XCTAssertEqual(0, session.inputs.count)
+        session.addInput(display!)
+        XCTAssertEqual(1, session.inputs.count)
 
     }
     #endif

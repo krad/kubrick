@@ -14,6 +14,7 @@ public class Display: MediaDevice {
 
     public struct DisplaySource: Source {
         
+        public var displayID: CGDirectDisplayID
         public var uniqueID: String
         public var devicePosition: DevicePosition
         public var isConnected: Bool
@@ -23,6 +24,7 @@ public class Display: MediaDevice {
         public var deviceFormats: [DeviceFormat]
         
         init(_ displayID: CGDirectDisplayID) {
+            self.displayID      = displayID
             self.uniqueID       = "\(displayID)"
             self.devicePosition = .unspecified
             self.isConnected    = true
