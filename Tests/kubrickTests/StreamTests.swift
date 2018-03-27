@@ -56,7 +56,7 @@ class StreamTests: XCTestCase {
 
     }
     
-    func test_that_we_can_cycle_devices_through_a_session() {
+    func xtest_that_we_can_cycle_devices_through_a_session() {
         let camSrcA    = MockCameraSource("cameraA")
         let camSrcB    = MockCameraSource("cameraB")
         let camA       = Camera(camSrcA)

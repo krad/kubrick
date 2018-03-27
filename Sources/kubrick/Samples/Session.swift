@@ -16,8 +16,8 @@ public protocol Session {
 public protocol BaseSession {
     func startRunning()
     func stopRunning()
-    func xaddInput(_ input: MediaDeviceInput)
-    func xaddOutput(_ output: MediaDeviceOutput)
+    func xaddInput(_ input: MediaDeviceInput) -> Bool
+    func xaddOutput(_ output: MediaDeviceOutput) -> Bool
     func xremoveInput(_ input: MediaDeviceInput)
     func xremoveOutput(_ output: MediaDeviceOutput)
 }
@@ -50,15 +50,16 @@ public class CaptureSession: Session {
         var inputBuilder = input
         
         inputBuilder.createInput {
-            self.base.xaddInput($0)
-            self.inputs.append($0)
+            if self.base.xaddInput($0) {
+                self.inputs.append($0)
+            }
         }
         
         inputBuilder.createOutput {
-            self.base.xaddOutput($0)
-            self.outputs.append($0)
-            
-            if let reader = input.reader { $0.set(reader) }
+            if self.base.xaddOutput($0) {
+                self.outputs.append($0)
+                if let reader = input.reader { $0.set(reader) }
+            }
         }
     }
     
@@ -85,26 +86,40 @@ public class CaptureSession: Session {
     }
     
     extension AVCaptureSession: BaseSession {
-        public func xaddOutput(_ output: MediaDeviceOutput) {
+        public func xaddOutput(_ output: MediaDeviceOutput) -> Bool {
             if let o = output as? AVCaptureVideoDataOutput {
                 if self.canAddOutput(o) {
                     self.addOutput(o)
+                    return true
                 }
             }
             
             if let o = output as? AVCaptureAudioDataOutput {
                 if self.canAddOutput(o) {
                     self.addOutput(o)
+                    return true
                 }
             }
+            
+            return false
         }
         
-        public func xaddInput(_ input: MediaDeviceInput) {
+        public func xaddInput(_ input: MediaDeviceInput) -> Bool {
             if let i = input as? AVCaptureDeviceInput {
                 if self.canAddInput(i) {
                     self.addInput(i)
+                    return true
                 }
             }
+            
+            if let i = input as? AVCaptureScreenInput {
+                if self.canAddInput(i) {
+                    self.addInput(i)
+                    return true
+                }
+            }
+            
+            return false
         }
         
         public func xremoveInput(_ input: MediaDeviceInput) {

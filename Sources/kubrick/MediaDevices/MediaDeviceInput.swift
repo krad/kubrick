@@ -18,7 +18,7 @@ func ==(lhs: MediaDeviceInput, rhs: MediaDeviceInput) -> Bool {
     import AVFoundation
 
     var makeInput: MakeMediaDeviceInput = { src, onCreate in
-        let input = try AVCaptureDeviceInput.makeInput(device: src)
+        let input = try AVCaptureInput.makeInput(device: src)
         onCreate(input)
         return input
     }
@@ -35,7 +35,6 @@ func ==(lhs: MediaDeviceInput, rhs: MediaDeviceInput) -> Bool {
             if let dev = device as? AVCaptureDevice {
                 return try AVCaptureDeviceInput(device: dev)
             }
-            
             
             if let dev = device as? DisplaySource {
                 return AVCaptureScreenInput(displayID: dev.displayID)

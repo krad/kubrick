@@ -18,6 +18,6 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   from connection: AVCaptureConnection)
         {
             self.q.async { self.push(input: sampleBuffer) }
-        }
+        }        
     }
 #endif
