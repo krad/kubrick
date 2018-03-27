@@ -5,7 +5,7 @@ import VideoToolbox
 internal class H264Encoder: VideoEncoder {
     
     fileprivate var settings: H264Settings
-        
+    
     init(_ settings: H264Settings) throws {
         self.settings = settings
         try self.configure()
@@ -74,7 +74,7 @@ internal class H264Encoder: VideoEncoder {
             
             var duration = sample.duration.time
             if duration.value <= 0 {
-                duration = CMTimeMakeWithSeconds(Float64(1.0/self.settings.frameRate), 1000)
+                duration = CMTimeMake(sample.pts.numerator/10000, sample.pts.denominator/10000)
             }
             
             VTCompressionSessionEncodeFrame(self.session!,
@@ -87,6 +87,7 @@ internal class H264Encoder: VideoEncoder {
         }
         
     }
+    
     #else
     func configure() { showNotAvailable() }
     func encode(_ sample: Sample, onComplete: @escaping VideoEncodedCallback) { showNotAvailable() }
