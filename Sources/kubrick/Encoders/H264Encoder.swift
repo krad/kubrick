@@ -78,7 +78,7 @@ internal class H264Encoder: VideoEncoder {
             if let previousSample = self.samples.first {
                 let prevPTS         = previousSample.pts.time
                 let currPTS         = sample.pts.time
-                let durationDiff    = CMTimeSubtract(prevPTS, currPTS)
+                let durationDiff    = CMTimeSubtract(currPTS, prevPTS)
                 let duration        = CMTimeConvertScale(durationDiff,
                                                          Int32(self.settings.frameRate)*1000,
                                                          .quickTime)
