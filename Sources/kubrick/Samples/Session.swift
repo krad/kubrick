@@ -16,6 +16,8 @@ public protocol Session {
 public protocol BaseSession {
     func startRunning()
     func stopRunning()
+    func beginConfiguration()
+    func commitConfiguration()
     func xaddInput(_ input: MediaDeviceInput) -> Bool
     func xaddOutput(_ output: MediaDeviceOutput) -> Bool
     func xremoveInput(_ input: MediaDeviceInput)
@@ -23,12 +25,12 @@ public protocol BaseSession {
 }
 
 public class CaptureSession: Session {
-    public let base = Base()
+    open let base = Base()
     
     public private(set) var inputs: [MediaDeviceInput] = []
     public private(set) var outputs: [MediaDeviceOutput] = []
 
-    public init() {}
+    public init() { }
     
     public func startRunning() {
         self.base.startRunning()
@@ -86,6 +88,7 @@ public class CaptureSession: Session {
     }
     
     extension AVCaptureSession: BaseSession {
+        
         public func xaddOutput(_ output: MediaDeviceOutput) -> Bool {
             if let o = output as? AVCaptureVideoDataOutput {
                 if self.canAddOutput(o) {
@@ -123,19 +126,12 @@ public class CaptureSession: Session {
         }
         
         public func xremoveInput(_ input: MediaDeviceInput) {
-            if let i = input as? AVCaptureDeviceInput {
-                self.removeInput(i)
-            }
+            if let i = input as? AVCaptureDeviceInput { self.removeInput(i) }
         }
         
         public func xremoveOutput(_ output: MediaDeviceOutput) {
-            if let o = output as? AVCaptureVideoDataOutput {
-                self.removeOutput(o)
-            }
-            
-            if let o = output as? AVCaptureAudioDataOutput {
-                self.removeOutput(o)
-            }
+            if let o = output as? AVCaptureVideoDataOutput { self.removeOutput(o) }
+            if let o = output as? AVCaptureAudioDataOutput { self.removeOutput(o) }
         }
     }
 #endif

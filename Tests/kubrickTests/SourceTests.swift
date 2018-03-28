@@ -38,20 +38,23 @@ class SourceTests: XCTestCase {
         XCTAssertNotNil(mic.output)
     }
     
+    #if os(macOS) || os(iOS)
     func test_that_we_can_remove_a_video_input() {
+        useRealDeviceIO()
+        
         let session    = CaptureSession()
-        let camSrcA    = MockCameraSource("cameraA")
-        let camA       = Camera(camSrcA)
+        let devA       = AVDeviceDiscoverer().devices.first
+        XCTAssertNotNil(devA)
         
         XCTAssertEqual(0, session.inputs.count)
         XCTAssertEqual(0, session.outputs.count)
-        session.addInput(camA)
+        session.addInput(devA!)
         XCTAssertEqual(1, session.inputs.count)
         XCTAssertEqual(1, session.outputs.count)
 
-        session.removeInput(camA)
+        session.removeInput(devA!)
         XCTAssertEqual(0, session.inputs.count)
         XCTAssertEqual(0, session.outputs.count)
-
     }
+    #endif
 }

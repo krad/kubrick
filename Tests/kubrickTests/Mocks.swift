@@ -44,7 +44,6 @@ class MockSink<T>: Sink<T> {
 
 #if os(macOS) || os(iOS)
     import AVFoundation
-
     
     class MockCameraSource: AVCaptureDevice {
         override var uniqueID: String { return self.fakeModelID }
