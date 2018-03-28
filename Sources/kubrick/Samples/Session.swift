@@ -61,6 +61,7 @@ public class CaptureSession: Session {
             if self.base.xaddOutput($0) {
                 self.outputs.append($0)
                 if var reader = input.reader {
+                    print("=====", self.base.masterClock)
                     reader.clock = self.base.masterClock
                     $0.set(reader)
                 }

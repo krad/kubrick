@@ -19,6 +19,7 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   from connection: AVCaptureConnection)
         {
             self.q.async {
+                print(self.clock)
                 if let masterClock = self.clock {
                     let port            = connection.inputPorts.first
                     if let originalClock = port?.clock {
