@@ -60,7 +60,10 @@ public class CaptureSession: Session {
         inputBuilder.createOutput {
             if self.base.xaddOutput($0) {
                 self.outputs.append($0)
-                if let reader = input.reader { $0.set(reader) }
+                if var reader = input.reader {
+                    reader.clock = self.base.masterClock
+                    $0.set(reader)
+                }
             }
         }
     }

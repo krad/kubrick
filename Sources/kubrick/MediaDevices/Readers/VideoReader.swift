@@ -3,6 +3,7 @@ import Dispatch
 public class VideoReader: NSObject, MediaDeviceReader {
 
     public var q                     = DispatchQueue(label: "video.reader.q")
+    public var clock: Clock?
     public var mediaType             = MediaType.video
     public var sinks: [Sink<Sample>] = []
     
@@ -18,15 +19,12 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   from connection: AVCaptureConnection)
         {
             self.q.async {
-                
-                print(connection.videoPreviewLayer.session)
-                print(connection.inputPorts.first)
-                if let masterClock = connection.videoPreviewLayer.session?.masterClock {
+                if let masterClock = self.clock {
                     let port            = connection.inputPorts.first
                     if let originalClock = port?.clock {
                         print("==============")
                         let syncedPTS   = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
-                        let originalPTS = CMSyncConvertTime(syncedPTS, masterClock, originalClock)
+                        let originalPTS = CMSyncConvertTime(syncedPTS, masterClock as! CMClock, originalClock)
                         print(originalPTS)
                         print(syncedPTS)
                     }

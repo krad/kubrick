@@ -17,8 +17,9 @@ internal typealias MakeMediaDeviceOutput = (Source, MediaDeviceOutputCreateCallb
         switch src.type {
         case .video?:
             let output = AVCaptureVideoDataOutput()
-            output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
-
+            output.videoSettings = [
+                kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)
+            ]
             onCreate(output)
             return output
         case .audio?:

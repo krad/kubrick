@@ -3,6 +3,7 @@ import Dispatch
 public class AudioReader: NSObject, MediaDeviceReader {
 
     public var q                     = DispatchQueue(label: "audio.reader.q")
+    public var clock: Clock?
     public var mediaType             = MediaType.audio
     public var sinks: [Sink<Sample>] = []
     
