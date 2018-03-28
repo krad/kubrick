@@ -36,9 +36,11 @@ func ==(lhs: MediaDeviceInput, rhs: MediaDeviceInput) -> Bool {
                 return try AVCaptureDeviceInput(device: dev)
             }
             
+            #if os(macOS)
             if let dev = device as? DisplaySource {
                 return AVCaptureScreenInput(displayID: dev.displayID)
             }
+            #endif
             
             throw MediaDeviceInputError.couldNotCreateInput
         }

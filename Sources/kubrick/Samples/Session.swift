@@ -115,12 +115,14 @@ public class CaptureSession: Session {
                 }
             }
             
+            #if os(macOS)
             if let i = input as? AVCaptureScreenInput {
                 if self.canAddInput(i) {
                     self.addInput(i)
                     return true
                 }
             }
+            #endif
             
             return false
         }

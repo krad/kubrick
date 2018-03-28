@@ -6,6 +6,7 @@ class StreamTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
+        useMockDeviceIO()
         self.continueAfterFailure = false
     }
     

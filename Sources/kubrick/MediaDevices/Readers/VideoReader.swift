@@ -17,7 +17,21 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   didOutput sampleBuffer: CMSampleBuffer,
                                   from connection: AVCaptureConnection)
         {
-            self.q.async { self.push(input: sampleBuffer) }
+            self.q.async {
+                
+                if let masterClock = connection.videoPreviewLayer.session?.masterClock {
+                    let port            = connection.inputPorts.first
+                    if let originalClock = port?.clock {
+                        print("==============")
+                        let syncedPTS   = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+                        let originalPTS = CMSyncConvertTime(syncedPTS, masterClock, originalClock)
+                        print(originalPTS)
+                        print(syncedPTS)
+                    }
+                }
+                
+                self.push(input: sampleBuffer)
+            }
         }        
     }
 #endif
