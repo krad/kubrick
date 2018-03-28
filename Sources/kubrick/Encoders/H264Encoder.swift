@@ -6,6 +6,9 @@ internal class H264Encoder: VideoEncoder {
     
     fileprivate var settings: H264Settings
     
+    fileprivate var samples     = ThreadSafeArray<Sample>()
+    fileprivate var callbacks   = ThreadSafeArray<VideoEncodedCallback>()
+    
     init(_ settings: H264Settings) throws {
         self.settings = settings
         try self.configure()
@@ -13,13 +16,15 @@ internal class H264Encoder: VideoEncoder {
     
     #if os(macOS) || os(iOS)
     fileprivate var session: VTCompressionSession?
-    fileprivate var onEncode: VideoEncodedCallback?
     
     fileprivate var encodeCallback: VTCompressionOutputCallback = {outputRef, sourceFrameRef, status, infoFlags, sampleBuffer in
         let encoder: H264Encoder = unsafeBitCast(outputRef, to: H264Encoder.self)
         if status == noErr {
             if let sb = sampleBuffer {
-                encoder.onEncode?(sb)
+                if let callback = encoder.callbacks.first {
+                    callback(sb)
+                    encoder.callbacks.removeFirst(n: 1)
+                }
             }
         }
     }
@@ -68,17 +73,34 @@ internal class H264Encoder: VideoEncoder {
     }
     
     func encode(_ sample: Sample, onComplete: @escaping VideoEncodedCallback) {
-        self.onEncode = onComplete
-        let cmsample = sample as! CMSampleBuffer
-        if let pixelBuffer = CMSampleBufferGetImageBuffer(cmsample) {
-            
-            var duration = sample.duration.time
-            if duration.value <= 0 {
-                duration = CMTimeConvertScale(sample.pts.time,
-                                              Int32(self.settings.frameRate)*1_000_000,
-                                              .quickTime)
+        
+        if sample.duration.time.value <= 0 {
+            if let previousSample = self.samples.first {
+                let prevPTS         = previousSample.pts.time
+                let currPTS         = sample.pts.time
+                let durationDiff    = CMTimeSubtract(prevPTS, currPTS)
+                let duration        = CMTimeConvertScale(durationDiff,
+                                                         Int32(self.settings.frameRate)*1000,
+                                                         .quickTime)
+                self.samples.removeFirst(n: 1)
+                self.process(previousSample, duration: duration)
+                print("============")
+                print(duration)
+                print(durationDiff)
             }
             
+            self.samples.append(sample)
+            self.callbacks.append(onComplete)
+            
+        } else {
+            self.callbacks.append(onComplete)
+            self.process(sample, duration: sample.duration.time)
+        }
+    }
+    
+    private func process(_ sample: Sample, duration: CMTime) {
+        let cmsample = sample as! CMSampleBuffer
+        if let pixelBuffer = CMSampleBufferGetImageBuffer(cmsample) {
             VTCompressionSessionEncodeFrame(self.session!,
                                             pixelBuffer,
                                             sample.pts.time,
@@ -87,7 +109,6 @@ internal class H264Encoder: VideoEncoder {
                                             nil,
                                             nil)
         }
-        
     }
     
     #else
