@@ -19,6 +19,8 @@ public class VideoReader: NSObject, MediaDeviceReader {
         {
             self.q.async {
                 
+                print(connection.videoPreviewLayer.session)
+                print(connection.inputPorts.first)
                 if let masterClock = connection.videoPreviewLayer.session?.masterClock {
                     let port            = connection.inputPorts.first
                     if let originalClock = port?.clock {
