@@ -1,6 +1,4 @@
-public protocol Clock {
-    
-}
+public protocol Clock { }
 
 #if os(iOS) || os(macOS)
     import AVFoundation
