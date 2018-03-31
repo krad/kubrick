@@ -121,7 +121,41 @@ class StreamTests: XCTestCase {
         XCTAssertNotNil(stream?.muxSink.audioFormat)
 
         XCTAssert(endpoint.samples.count > 1)
+        print(endpoint.samples.count)
         
+    }
+    
+    func test_that_we_can_stream_to_a_file() {
+        useRealDeviceIO()
+        
+        let tmpDir  = NSTemporaryDirectory()
+        let tmpFile = UUID().uuidString
+        let tmpURL  = URL(fileURLWithPath: tmpDir).appendingPathComponent(tmpFile)
+        
+        let endExpectation = self.expectation(description: "Should get notified when we end")
+        let fileEndpoint = try? FileEndpoint(fileURL: tmpURL) { _ in endExpectation.fulfill() }
+        XCTAssertNotNil(fileEndpoint)
+        
+        let discovery = AVDeviceDiscoverer()
+        let video = discovery.devices.filter { $0.source.type == .video }.first
+        let audio = discovery.devices.filter { $0.source.type == .audio }.first
+        
+        XCTAssertNotNil(video)
+        XCTAssertNotNil(audio)
+        
+        let stream = try? AVStream(devices: [video!, audio!])
+        XCTAssertNotNil(stream)
+        
+        stream?.session.startRunning()
+        stream?.set(endpoint: fileEndpoint!)
+        
+        let e = self.expectation(description: "Ensure we get data to the endpoint")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            fileEndpoint?.end()
+            e.fulfill()
+        }
+        self.wait(for: [e, endExpectation], timeout: 3)
+
     }
     #endif
     

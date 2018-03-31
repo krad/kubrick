@@ -148,8 +148,8 @@ public class AVStream: AVStreamProtocol {
             if let videoFormat = self.muxSink.videoFormat {
                 do {
                     let paramsPacket     = try VideoParamSetPacket(params: videoFormat.params)
-                    let dimensionsPacket = VideoDimensionPacket(width: videoFormat.dimensions.width,
-                                                                height: videoFormat.dimensions.height)
+                    let dimensionsPacket = VideoDimensions(width: videoFormat.dimensions.width,
+                                                           height: videoFormat.dimensions.height)
                     
                     self.endPointSink?.push(input: paramsPacket)
                     self.endPointSink?.push(input: dimensionsPacket)

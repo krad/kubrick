@@ -18,17 +18,16 @@ public class MuxerSink: Sink<Sample>, NextSinkProtocol {
         guard checkForValidFormat(for: input) else { return }
         switch input.type {
         case .audio:
-            let packet = AudioSamplePacket(duration: input.duration.numerator,
-                                           timescale: UInt32(input.duration.denominator),
-                                           data: input.bytes)
+            let packet = AudioSample(duration: input.duration.numerator,
+                                     timescale: UInt32(input.duration.denominator),
+                                     data: input.bytes)
             self.send(packet)
         case .video:
-            var packet = VideoSamplePacket(duration: input.duration.numerator,
-                                           timescale: UInt32(input.duration.denominator),
-                                           data: input.bytes)
-            
+            var packet = VideoSample(duration: input.duration.numerator,
+                                     timescale: UInt32(input.duration.denominator),
+                                     data: input.bytes)
             packet.isSync                    = input.isSync
-            packet.dependsOnOther            = input.dependsOnOthers
+            packet.dependsOnOthers           = input.dependsOnOthers
             packet.earlierDisplayTimesAllows = input.earlierPTSAllowed
             self.send(packet)
         default: return
