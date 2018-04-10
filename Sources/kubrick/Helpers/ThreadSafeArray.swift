@@ -40,13 +40,15 @@ public class ThreadSafeArray<T>: Collection {
     
     public var count: Int {
         var count = 0
-        q.sync { count = self.array.count }
+        q.sync(flags: .barrier) { count = self.array.count }
+//        q.sync { count = self.array.count }
         return count
     }
     
     public var first: T? {
         var element: T?
-        q.sync { element = self.array.first }
+        q.sync(flags: .barrier) { element = self.array.first }
+//        q.sync { element = self.array.first }
         return element
     }
     

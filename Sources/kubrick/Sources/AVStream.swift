@@ -91,7 +91,13 @@ public class AVStream: AVStreamProtocol {
         
         // Attach the video encoders to the video reader
         if videoReaders.count > 0 {
+            #if os(macOS)
+                var encoderSettings = H264Settings(profile: .h264Main_3_1,
+                                                   width: 1024,
+                                                   height: 768)
+            #else
             var encoderSettings = H264Settings()
+            #endif
             
             let cameras = self.devices.filter { $0.source.type == .video }
             if let camera = cameras.first as? Camera {
@@ -143,7 +149,7 @@ public class AVStream: AVStreamProtocol {
         let streamTypePacket = StreamTypePacket(streamType: muxSink.streamType)
         self.endPointSink?.push(input: streamTypePacket)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             // If we have a video format, build the config packets and send them
             if let videoFormat = self.muxSink.videoFormat {
                 do {

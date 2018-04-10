@@ -66,6 +66,7 @@ internal class H264Encoder: VideoEncoder {
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_AllowTemporalCompression, ctrue)
             
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_ProfileLevel, settings.profile.raw)
+            
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_DataRateLimits, 110_000 as CFTypeRef)
         } else {
             throw VideoEncoderError.failedSetup
@@ -74,7 +75,7 @@ internal class H264Encoder: VideoEncoder {
     
     func encode(_ sample: Sample, onComplete: @escaping VideoEncodedCallback) {
         
-        if sample.duration.time.value <= 0 {
+//        if sample.duration.time.value <= 0 {
             if let previousSample = self.samples.first {
                 let prevPTS         = previousSample.pts.time
                 let currPTS         = sample.pts.time
@@ -84,18 +85,14 @@ internal class H264Encoder: VideoEncoder {
                                                          .quickTime)
                 self.samples.removeFirst(n: 1)
                 self.process(previousSample, duration: duration)
-                print("============")
-                print(duration)
-                print(durationDiff)
             }
             
             self.samples.append(sample)
             self.callbacks.append(onComplete)
             
-        } else {
-            self.callbacks.append(onComplete)
-            self.process(sample, duration: sample.duration.time)
-        }
+//        } else {
+//            self.process(sample, duration: sample.duration.time)
+//        }
     }
     
     private func process(_ sample: Sample, duration: CMTime) {

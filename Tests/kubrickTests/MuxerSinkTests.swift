@@ -3,6 +3,11 @@ import XCTest
 
 class MuxerSinkTests: XCTestCase {
     
+    override func setUp() {
+        super.setUp()
+        continueAfterFailure = false
+    }
+    
     #if os(macOS)
     func test_that_we_can_capture_data() {
         useRealDeviceIO()
@@ -24,7 +29,8 @@ class MuxerSinkTests: XCTestCase {
         let audio = AudioReader()
         XCTAssertNoThrow(try mic.set(reader: audio))
 
-        let h264Sink = try! H264EncoderSink()
+        let h264Settings = H264Settings(profile: .h264Main_3_1, frameRate: 25, width: 640, height: 480)
+        let h264Sink = try! H264EncoderSink(settings: h264Settings)
         h264Sink.running = true
         video.sinks.append(h264Sink)
         
@@ -43,7 +49,7 @@ class MuxerSinkTests: XCTestCase {
         session.startRunning()
         
         let e = self.expectation(description: "Capturing data")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { e.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { e.fulfill() }
         self.wait(for: [e], timeout: 5)
         
         XCTAssertNotNil(muxSink.videoFormat)
