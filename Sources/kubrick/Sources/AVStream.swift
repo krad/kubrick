@@ -39,9 +39,10 @@ public class AVStream: AVStreamProtocol {
     public var prettyPortrait: PrettyPortrait
     #endif
     
-    public init(devices: [MediaDevice]) throws {
+    public init(devices: [MediaDevice], videoSettings: H264Settings? = H264Settings()) throws {
         guard devices.count > 0 else { throw AVStreamError.noDevicesSelected }
         
+        var videoEncoderSettings = videoSettings
         // Create a capture session and save the devices the user set
         self.session = CaptureSession()
         self.devices = devices
@@ -58,7 +59,7 @@ public class AVStream: AVStreamProtocol {
         #endif
         
         // Create readers for each of the devices
-        let readers: [MediaDeviceReader] = self.devices.flatMap {
+        let readers: [MediaDeviceReader] = self.devices.compactMap {
             if $0.source.type == .audio { return AudioReader() }
             if $0.source.type == .video { return VideoReader() }
             return nil
@@ -91,17 +92,9 @@ public class AVStream: AVStreamProtocol {
         
         // Attach the video encoders to the video reader
         if videoReaders.count > 0 {
-            #if os(macOS)
-                var encoderSettings = H264Settings(profile: .h264Main_3_1,
-                                                   width: 1024,
-                                                   height: 768)
-            #else
-            var encoderSettings = H264Settings()
-            #endif
-            
             let cameras = self.devices.filter { $0.source.type == .video }
             if let camera = cameras.first as? Camera {
-                encoderSettings.frameRate = Float(camera.frameRate)
+                videoEncoderSettings?.frameRate = Float(camera.frameRate)
             }
             
             #if os(iOS) && (arch(arm) || arch(arm64))
@@ -109,11 +102,11 @@ public class AVStream: AVStreamProtocol {
                     reader.sinks.append(self.prettyPortrait)
                 }
                 
-                self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
+                self.videoEncoderSink = try H264EncoderSink(settings: videoEncoderSettings!)
                 self.prettyPortrait.nextSinks.append(self.videoEncoderSink!)
                 muxSink.streamType.insert(.video)
             #else
-                self.videoEncoderSink = try H264EncoderSink(settings: encoderSettings)
+                self.videoEncoderSink = try H264EncoderSink(settings: videoEncoderSettings!)
                 for var reader in videoReaders {
                     reader.sinks.append(self.videoEncoderSink!)
                     muxSink.streamType.insert(.video)
