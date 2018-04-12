@@ -1,20 +1,24 @@
 public protocol VideoEncoderSettings {}
 
 public struct H264Settings {
-    var profile: H264ProfileLevel
-    var frameRate: Float
-    var width: Int
-    var height: Int
+    
+    public var profile: H264ProfileLevel
+    public var frameRate: Float
+    public var width: Int
+    public var height: Int
+    public var maxBitRate: Int
     
     public init(profile: H264ProfileLevel = .h264Baseline_3_0,
                 frameRate: Float = 25.0,
                 width: Int = 400,
-                height: Int = 224)
+                height: Int = 224,
+                maxBitRate: Int = 110_000)
     {
         self.profile    = profile
         self.frameRate  = frameRate
         self.width      = width
         self.height     = height
+        self.maxBitRate = maxBitRate
     }
 }
 

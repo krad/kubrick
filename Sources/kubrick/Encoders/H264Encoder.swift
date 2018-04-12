@@ -55,19 +55,17 @@ internal class H264Encoder: VideoEncoder {
 
         if status == noErr {
             
-            let ctrue = true as CFBoolean
+            let ctrue  = true as CFBoolean
             let cfalse = false as CFBoolean
             
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_MaxKeyFrameIntervalDuration, 2 as CFTypeRef)
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_RealTime, ctrue)
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_ExpectedFrameRate, settings.frameRate as CFTypeRef)
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_AllowFrameReordering, cfalse)
-            
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_AllowTemporalCompression, ctrue)
-            
             VTSessionSetProperty(session!, kVTCompressionPropertyKey_ProfileLevel, settings.profile.raw)
+            VTSessionSetProperty(session!, kVTCompressionPropertyKey_DataRateLimits, settings.maxBitRate as CFTypeRef)
             
-            VTSessionSetProperty(session!, kVTCompressionPropertyKey_DataRateLimits, 110_000 as CFTypeRef)
         } else {
             throw VideoEncoderError.failedSetup
         }
