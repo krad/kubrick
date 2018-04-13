@@ -6,6 +6,9 @@ public protocol SourceDiscoverer {
     var mediaSource: MediaSource { get }
     var sources: [Source] { get }
     var devices: [MediaDevice] { get }
+    #if os(macOS)
+    var displays: [MediaDevice] { get }
+    #endif
 }
 
 public protocol MediaSource {
@@ -13,6 +16,10 @@ public protocol MediaSource {
     func devices() -> [MediaDevice]
     func devices(_ scope: MediaSourceScope) -> [MediaDevice]
     func sources(_ scope: MediaSourceScope) -> [Source]
+    
+    #if os(macOS)
+    func displays() -> [DisplaySource]
+    #endif
 }
 
 public enum MediaSourceScope {
@@ -32,6 +39,10 @@ public struct AVDeviceDiscoverer: SourceDiscoverer {
     public var sources: [Source] { return mediaSource.sources() }
     public var devices: [MediaDevice] { return mediaSource.devices() }
     
+    #if os(macOS)
+    public var displays: [MediaDevice] { return mediaSource.displays().compactMap { Display($0) } }
+    #endif
+    
     public func devices(scoped: MediaSourceScope) -> [MediaDevice] {
         return mediaSource.devices(scoped)
     }
@@ -47,7 +58,7 @@ extension MediaSource {
     }
     
     public func devices(_ scope: MediaSourceScope) -> [MediaDevice] {
-        return self.sources(scope).flatMap {
+        return self.sources(scope).compactMap {
             switch $0.type {
             case .video?: return Camera($0)
             case .audio?: return Microphone($0)
@@ -61,8 +72,7 @@ extension MediaSource {
     extension SystemMediaSource: MediaSource {
         
         public func sources() -> [Source] {
-            let srcs: [[Source]] = [AVCaptureDevice.devices(), self.displays()]
-            return srcs.flatMap { $0 }
+            return AVCaptureDevice.devices()
         }
         
         public func sources(_ scope: MediaSourceScope) -> [Source] {
@@ -80,7 +90,7 @@ extension MediaSource {
         }
         
         public func displays() -> [DisplaySource] {
-            return self.displayIDs().flatMap { DisplaySource($0) }
+            return self.displayIDs().compactMap { DisplaySource($0) }
         }
     }
 #endif

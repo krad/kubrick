@@ -2,12 +2,20 @@ import Foundation
 @testable import kubrick
 
 class MockSource: MediaSource {
+    
     func sources() -> [Source] {
         return [MockCameraSource(""), MockMicrophoneSource()]
     }
+    
     func sources(_ scope: MediaSourceScope) -> [Source] {
         return self.sources()
     }
+    
+    #if os(macOS)
+    func displays() -> [DisplaySource] {
+        return []
+    }
+    #endif
 }
 
 class MockDeviceInput: MediaDeviceInput {

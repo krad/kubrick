@@ -11,7 +11,7 @@ class DisplayStreamTests: XCTestCase {
         useRealDeviceIO()
         
         let subject = AVDeviceDiscoverer()
-        var display = subject.devices.last
+        var display = subject.displays.last
         XCTAssertEqual(display?.source.localizedName, "Color LCD")
         
         let reader = VideoReader()

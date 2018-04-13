@@ -43,7 +43,7 @@ class SourceDiscovererTests: XCTestCase {
     
     func test_that_we_can_get_a_list_of_display_devices_on_macOS() {
         let subject = AVDeviceDiscoverer()
-        let display = subject.devices.last
+        let display = subject.displays.last
         XCTAssertEqual(display?.source.localizedName, "Color LCD")
     }
     #endif
