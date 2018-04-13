@@ -6,7 +6,7 @@ public protocol Session {
     associatedtype Base: BaseSession
     func startRunning()
     func stopRunning()
-    func addInput(_ input: MediaDevice)
+    func addInput(_ input: MediaDevice, withOutputConnections: Bool)
     func removeInput(_ input: MediaDevice)
     
     func beginConfiguration()
@@ -19,7 +19,7 @@ public protocol BaseSession {
     func beginConfiguration()
     func commitConfiguration()
     func xaddInput(_ input: MediaDeviceInput) -> Bool
-    func xaddOutput(_ output: MediaDeviceOutput) -> Bool
+    func xaddOutput(_ output: MediaDeviceOutput, withOutputConnections: Bool) -> Bool
     func xremoveInput(_ input: MediaDeviceInput)
     func xremoveOutput(_ output: MediaDeviceOutput)
 }
@@ -48,7 +48,7 @@ public class CaptureSession: Session {
         self.base.commitConfiguration()
     }
     
-    public func addInput(_ input: MediaDevice) {
+    public func addInput(_ input: MediaDevice, withOutputConnections: Bool = true) {
         var inputBuilder = input
         
         inputBuilder.createInput {
@@ -58,7 +58,7 @@ public class CaptureSession: Session {
         }
         
         inputBuilder.createOutput {
-            if self.base.xaddOutput($0) {
+            if self.base.xaddOutput($0, withOutputConnections: withOutputConnections) {
                 self.outputs.append($0)
                 if var reader = input.reader {
                     reader.clock = self.base.masterClock
@@ -90,12 +90,16 @@ public class CaptureSession: Session {
         public typealias Base = AVCaptureSession
     }
     
-    extension AVCaptureSession: BaseSession {
-        
-        public func xaddOutput(_ output: MediaDeviceOutput) -> Bool {
+extension AVCaptureSession: BaseSession {
+
+        public func xaddOutput(_ output: MediaDeviceOutput, withOutputConnections: Bool) -> Bool {
             if let o = output as? AVCaptureVideoDataOutput {
                 if self.canAddOutput(o) {
-                    self.addOutput(o)
+                    if withOutputConnections {
+                        self.addOutput(o)
+                    } else {
+                        self.addOutputWithNoConnections(o)
+                    }
                     return true
                 }
             }
