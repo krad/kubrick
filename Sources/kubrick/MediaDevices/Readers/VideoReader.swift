@@ -23,9 +23,9 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   from connection: AVCaptureConnection)
         {
             self.q.async {
-                setSampleBufferAttachments(sampleBuffer, identifier: self.ident)
-                print(sampleBuffer)
-                self.push(input: sampleBuffer)
+                if let s = stripDecode(sampleBuffer) {
+                    self.push(input: s)
+                }
             }
         }        
     }
@@ -42,4 +42,24 @@ func setSampleBufferAttachments(_ sampleBuffer: CMSampleBuffer, identifier: Stri
     let key = Unmanaged.passUnretained(kCMSampleAttachmentKey_DisplayImmediately).toOpaque()
     let value = Unmanaged.passUnretained(kCFBooleanTrue).toOpaque()
     CFDictionarySetValue(dictionary, key, value)
+}
+
+
+func stripDecode(_ sampleBuffer: CMSampleBuffer) -> CMSampleBuffer? {
+    var newSampleBuffer: CMSampleBuffer?
+    var timingInfo = CMSampleTimingInfo(duration: CMSampleBufferGetDuration(sampleBuffer),
+                                        presentationTimeStamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+                                        decodeTimeStamp: kCMTimeInvalid)
+    
+    let status = CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault,
+                                                       sampleBuffer,
+                                                       1,
+                                                       &timingInfo,
+                                                       &newSampleBuffer)
+
+    if status == noErr {
+        return newSampleBuffer
+    }
+    
+    return nil
 }
