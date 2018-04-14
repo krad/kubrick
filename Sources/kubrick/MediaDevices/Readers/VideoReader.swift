@@ -24,6 +24,7 @@ public class VideoReader: NSObject, MediaDeviceReader {
         {
             self.q.async {
                 if let s = stripDecode(sampleBuffer) {
+                    print(s)
                     self.push(input: s)
                 }
             }
