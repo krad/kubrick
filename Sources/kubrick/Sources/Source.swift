@@ -26,6 +26,23 @@ public protocol DeviceFormat {
 
 #if os(macOS) || os(iOS)
 import AVFoundation
+
+extension MediaType {
+    
+    static func from(_ avType: AVMediaType) -> MediaType? {
+        switch avType {
+        case .video:
+            return MediaType.video
+        case .audio:
+            return MediaType.audio
+        default:
+            return nil
+        }
+    }
+    
+}
+
+import AVFoundation
     extension AVCaptureDevice: Source {
 
         public var devicePosition: DevicePosition {
