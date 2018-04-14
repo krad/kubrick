@@ -1,6 +1,7 @@
 import Dispatch
 
 public protocol MediaDeviceReader {
+    var ident: String { get }
     var mediaType: MediaType { get }
     var clock: Clock? { get set }
     var q: DispatchQueue { get }

@@ -22,7 +22,23 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   didOutput sampleBuffer: CMSampleBuffer,
                                   from connection: AVCaptureConnection)
         {
-            self.q.async { self.push(input: sampleBuffer) }
+            self.q.async {
+                setSampleBufferAttachments(sampleBuffer, identifier: self.ident)
+                self.push(input: sampleBuffer)
+            }
         }        
     }
 #endif
+
+
+func setSampleBufferAttachments(_ sampleBuffer: CMSampleBuffer, identifier: String) {
+    let attachments: CFArray! = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, true)
+    let dictionary = unsafeBitCast(CFArrayGetValueAtIndex(attachments, 0),
+                                   to: CFMutableDictionary.self)
+
+    let key   = Unmanaged.passUnretained("MediaDeviceReader.ident" as CFString).toOpaque()
+    let value = Unmanaged.passUnretained(identifier as CFString).toOpaque()
+//    let key = Unmanaged.passUnretained(kCMSampleAttachmentKey_DisplayImmediately).toOpaque()
+//    let value = Unmanaged.passUnretained(kCFBooleanTrue).toOpaque()
+    CFDictionarySetValue(dictionary, key, value)
+}

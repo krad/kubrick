@@ -2,12 +2,16 @@ import Dispatch
 
 public class AudioReader: NSObject, MediaDeviceReader {
 
+    public var ident: String
     public var q                     = DispatchQueue(label: "audio.reader.q")
     public var clock: Clock?
     public var mediaType             = MediaType.audio
     public var sinks: [Sink<Sample>] = []
     
-    public override init() { super.init() }
+    public init(_ ident: String? = nil) {
+        if let i = ident { self.ident = i }
+        else { self.ident = UUID().uuidString }
+    }
     
 }
 
