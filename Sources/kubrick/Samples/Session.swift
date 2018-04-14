@@ -7,9 +7,17 @@ public protocol Session {
     func startRunning()
     func stopRunning()
     
+    #if os(macOS)
     func addInput(_ input: MediaDevice, withOutputConnections: Bool)
+    #elseif os(iOS)
+    func addInput(_ input: MediaDevice)
+    #endif
+    
     func removeInput(_ input: MediaDevice)
+    
+    #if os(macOS)
     func makeConnections(_ device: MediaDevice) throws
+    #endif
     
     func beginConfiguration()
     func commitConfiguration()
@@ -70,7 +78,19 @@ public class CaptureSession: Session {
     /// - Parameters:
     ///   - input: MediaDevice we should create i/o for
     ///   - withOutputConnections: Bool that signals whether the created output object should make a connection in the CaptureSesssion.  This is useful on macOS where multiple inputs can be created (defaults: true)
+    #if os(macOS)
     public func addInput(_ input: MediaDevice, withOutputConnections: Bool = true) {
+        _addInput(input, withOutputConnections: withOutputConnections)
+    }
+    #endif
+    
+    #if os(iOS)
+    public func addInput(_ input: MediaDevice) {
+        _addInput(input, withOutputConnections: true)
+    }
+    #endif
+    
+    private func _addInput(_ input: MediaDevice, withOutputConnections: Bool = true) {
         var inputBuilder = input
         
         inputBuilder.createInput {
