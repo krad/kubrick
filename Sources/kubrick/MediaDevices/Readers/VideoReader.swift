@@ -24,6 +24,7 @@ public class VideoReader: NSObject, MediaDeviceReader {
         {
             self.q.async {
                 setSampleBufferAttachments(sampleBuffer, identifier: self.ident)
+                print(sampleBuffer)
                 self.push(input: sampleBuffer)
             }
         }        
