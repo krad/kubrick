@@ -24,7 +24,7 @@ public class VideoReader: NSObject, MediaDeviceReader {
         {
             self.q.async {
                 if let s = stripDecode(sampleBuffer) {
-                    setSampleBufferAttachments(sampleBuffer, identifier: self.ident)
+                    setSampleBufferAttachments(s, identifier: self.ident)
                     print(s)
                     self.push(input: s)
                 }
