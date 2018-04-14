@@ -22,14 +22,7 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   didOutput sampleBuffer: CMSampleBuffer,
                                   from connection: AVCaptureConnection)
         {
-            self.q.async {
-                if let s = stripDecode(sampleBuffer) {
-                    setSampleBufferAttachments(s, identifier: self.ident)
-                    print(self.ident)
-//                    print(s)
-                    self.push(input: s)
-                }
-            }
+            self.q.async { self.push(input: sampleBuffer) }
         }        
     }
 #endif
