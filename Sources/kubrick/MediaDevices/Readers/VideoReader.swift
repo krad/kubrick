@@ -2,11 +2,11 @@ import Dispatch
 
 public class VideoReader: NSObject, MediaDeviceReader {
 
-    public var ident: String
-    public var q                     = DispatchQueue(label: "video.reader.q")
+    public var ident: MediaSourceIdentifier
     public var clock: Clock?
-    public var mediaType             = MediaType.video
-    public var sinks: [Sink<Sample>] = []
+    public var mediaType              = MediaType.video
+    public var q                      = DispatchQueue(label: "video.reader.q")
+    public var sinks: [Sink<Sample>]  = []
     
     public init(_ ident: String? = nil) {
         if let i = ident { self.ident = i }
@@ -22,7 +22,11 @@ public class VideoReader: NSObject, MediaDeviceReader {
                                   didOutput sampleBuffer: CMSampleBuffer,
                                   from connection: AVCaptureConnection)
         {
-            self.q.async { self.push(input: sampleBuffer) }
+            self.q.async {
+                sampleBuffer.setMetaData(key: "stream.identifier", value: self.ident)
+                self.push(input: sampleBuffer)
+                print(sampleBuffer)
+            }
         }        
     }
 #endif

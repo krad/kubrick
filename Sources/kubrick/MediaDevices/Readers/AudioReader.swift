@@ -2,10 +2,10 @@ import Dispatch
 
 public class AudioReader: NSObject, MediaDeviceReader {
 
-    public var ident: String
-    public var q                     = DispatchQueue(label: "audio.reader.q")
+    public var ident: MediaSourceIdentifier
     public var clock: Clock?
     public var mediaType             = MediaType.audio
+    public var q                     = DispatchQueue(label: "audio.reader.q")
     public var sinks: [Sink<Sample>] = []
     
     public init(_ ident: String? = nil) {

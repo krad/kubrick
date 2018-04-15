@@ -10,6 +10,9 @@ public protocol Sample {
     var isSync: Bool { get }
     var dependsOnOthers: Bool { get }
     var earlierPTSAllowed: Bool { get }
+    
+    func metadata() -> [String: Any]?
+    func setMetaData(key: String, value: Any)
 }
 
 #if os(macOS) || os(iOS)
@@ -82,6 +85,29 @@ public protocol Sample {
         
         public var earlierPTSAllowed: Bool {
             return self.attachmentValue(for: kCMSampleAttachmentKey_EarlierDisplayTimesAllowed)
+        }
+        
+        public func metadata() -> [String : Any]? {
+            if let cfattachments = CMCopyDictionaryOfAttachments(nil,
+                                                              self,
+                                                              kCMAttachmentMode_ShouldPropagate) {
+                if let attachments = cfattachments as? [String : Any] {
+                    if let metadata = attachments["com.krad.kubrick.metadata"] as? [String: Any] {
+                        return metadata
+                    }
+                }
+            }
+            return nil
+        }
+        
+        public func setMetaData(key: String, value: Any) {
+            var dict: [String: Any] = [:]
+            if let metaDict = self.metadata() { dict = metaDict }
+            dict[key] = value
+            CMSetAttachment(self,
+                            "com.krad.kubrick.metadata" as CFString,
+                            dict as CFDictionary,
+                            CMAttachmentMode(kCMAttachmentMode_ShouldPropagate))
         }
 
     }

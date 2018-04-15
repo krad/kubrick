@@ -1,5 +1,6 @@
 import XCTest
 @testable import kubrick
+import AVFoundation
 
 class VideoSinkTests: XCTestCase {
     
@@ -50,6 +51,7 @@ class VideoSinkTests: XCTestCase {
         XCTAssertEqual(format?.mediaSubType, .h264)
         
         XCTAssertNotNil(format?.details)
+        XCTAssertNotNil(vSample!.metadata())
         
     }
     #endif
