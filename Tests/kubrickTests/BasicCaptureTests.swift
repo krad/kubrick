@@ -37,13 +37,13 @@ class BasicCaptureTests: XCTestCase {
         if let _ = mic.output as? MockDeviceOutput { XCTFail("We have a fake mic output") }
         
         let video = VideoReader()
-        let vSink = MockSink<Sample>()
+        let vSink = MockSink<SampleTransport>()
         video.sinks.append(vSink)
         XCTAssertEqual(vSink.samples.count, 0)
         XCTAssertNoThrow(try camera.set(reader: video))
         
         let audio   = AudioReader()
-        let aSink   = MockSink<Sample>()
+        let aSink   = MockSink<SampleTransport>()
         audio.sinks.append(aSink)
         XCTAssertEqual(aSink.samples.count, 0)
         XCTAssertNoThrow(try mic.set(reader: audio))
@@ -57,8 +57,8 @@ class BasicCaptureTests: XCTestCase {
         XCTAssertTrue(vSink.samples.count > 0)
         XCTAssertTrue(aSink.samples.count > 0)
         
-        let vSample = vSink.samples.first
-        let aSample = aSink.samples.first
+        let vSample = vSink.samples.first?.sample
+        let aSample = aSink.samples.first?.sample
         XCTAssertEqual(vSample?.type, .video)
         XCTAssertEqual(aSample?.type, .audio)
         

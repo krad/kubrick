@@ -2,7 +2,7 @@ import Dispatch
 import grip
 
 /// This is an H264 encoder sink.  You pass in YUV data from a video reader and it outputs h264 compressed samples
-public class H264EncoderSink: Sink<Sample>, NextSinkProtocol {
+public class H264EncoderSink: Sink<SampleTransport>, NextSinkProtocol {
     
     public typealias OutputType = Sample
     public var nextSinks: [Sink<Sample>] = []
@@ -15,9 +15,9 @@ public class H264EncoderSink: Sink<Sample>, NextSinkProtocol {
     }
     
     #if os(macOS) || os(iOS)
-    public override func push(input: Sample) {
+    public override func push(input: SampleTransport) {
         guard self.running else { return }
-        self.encoder?.encode(input, onComplete: { (sample) in
+        self.encoder?.encode(input.sample, onComplete: { (sample) in
             for sink in self.nextSinks {
                 sink.push(input: sample)
             }

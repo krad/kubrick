@@ -7,11 +7,11 @@ public protocol MediaDeviceReader {
     var mediaType: MediaType { get }
     var clock: Clock? { get set }
     var q: DispatchQueue { get }
-    var sinks: [Sink<Sample>] { get set }
+    var sinks: [Sink<SampleTransport>] { get set }
 }
 
 extension MediaDeviceReader {
-    public func push(input: Sample) {
+    public func push(input: SampleTransport) {
         for next in self.sinks {
             next.push(input: input)
         }

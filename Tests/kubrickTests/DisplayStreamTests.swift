@@ -19,7 +19,7 @@ class DisplayStreamTests: XCTestCase {
         XCTAssertNoThrow(try display!.set(reader: reader))
         XCTAssertNotNil(display?.reader)
         
-        let mockSink = MockSink<Sample>()
+        let mockSink = MockSink<SampleTransport>()
         XCTAssertEqual(0, mockSink.samples.count)
         reader.sinks.append(mockSink)
 
